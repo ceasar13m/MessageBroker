@@ -1,3 +1,5 @@
+package com.ainur;
+
 import com.google.gson.Gson;
 
 import java.io.*;
@@ -17,6 +19,7 @@ public class MessageProcessor extends Thread {
 
     @Override
     public void run() {
+        System.out.println(socket);
 
         try {
             gson = new Gson();
@@ -26,6 +29,15 @@ public class MessageProcessor extends Thread {
 
             String message = null;
             message = reader.readLine();
+            System.out.println(message);
+
+
+            while (true) {
+
+                writer.write("FFF" + "\n");
+                writer.flush();
+                message = reader.readLine();
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -41,4 +53,7 @@ public class MessageProcessor extends Thread {
 
         }
     }
+
+
+
 }
