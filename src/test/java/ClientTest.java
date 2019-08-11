@@ -1,5 +1,6 @@
 
-import com.ainur.MessageReceiver;
+import com.ainur.ConnectionReceiver;
+import com.ainur.model.Message;
 import com.google.gson.Gson;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -12,7 +13,7 @@ public class ClientTest {
 
     @BeforeClass
     public static void startServer() {
-        MessageReceiver server = new MessageReceiver();
+        ConnectionReceiver server = new ConnectionReceiver();
         server.start();
     }
 
@@ -27,7 +28,14 @@ public class ClientTest {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-            writer.write("SSS" + "\n");
+            Message message = new Message();
+            message.setCommand("signIn");
+            message.setUsername("ainur");
+            message.setPassword("123");
+
+            String jsonString = gson.toJson(message, Message.class);
+
+            writer.write(jsonString + "\n");
             writer.flush();
 
             String signUpResponseString = reader.readLine();
