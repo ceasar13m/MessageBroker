@@ -1,6 +1,7 @@
 package com.ainur;
 
 import com.ainur.model.Message;
+import com.google.gson.Gson;
 
 import java.io.*;
 import java.net.Socket;
@@ -14,6 +15,7 @@ public class ClientThread extends Thread {
     private BufferedWriter writer;
     private BufferedReader reader;
     MessageProcessor processor;
+    Gson gson = new Gson();
 
     public ClientThread(MessageProcessor processor, Socket socket) {
         this.socket = socket;
@@ -26,12 +28,11 @@ public class ClientThread extends Thread {
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             String jsonMessage = null;
+            jsonMessage = reader.readLine();
             while (true) {
+                Message message = gson.fromJson(jsonMessage, Message.class);
+                processor.addMessage(message, socket);
                 jsonMessage = reader.readLine();
-                String command = "";
-                //Отпарсить сообщение
-
-                processor.addMessage(new Message(), socket);
             }
 
 

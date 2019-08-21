@@ -1,13 +1,15 @@
 package com.ainur;
 
+import com.ainur.model.Message;
+
 import java.util.concurrent.BlockingQueue;
 
 public class Worker extends Thread{
     SocketsStorage socketsStorage;
-    BlockingQueue messageStorage;
+    BlockingQueue<Message> messages;
 
-    public Worker(SocketsStorage socketsStorage, BlockingQueue messageStorage) {
-        this.messageStorage = messageStorage;
+    public Worker(SocketsStorage socketsStorage, BlockingQueue<Message> messages) {
+        this.messages = messages;
         this.socketsStorage = socketsStorage;
     }
     /**
@@ -17,8 +19,8 @@ public class Worker extends Thread{
     public void run() {
         while(true) {
             try {
-                messageStorage.take();
-                //
+                Message message = messages.take();
+                System.out.println(message.getPassword());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

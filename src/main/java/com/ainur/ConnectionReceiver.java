@@ -14,12 +14,23 @@ public class ConnectionReceiver {
         processor.startWorkers();
     }
 
-    public void start() throws IOException {
-        while (true) {
-            Socket clientSocket;
-            clientSocket = serverSocket.accept();
-            ClientThread clientThread = new ClientThread(processor, clientSocket);
-            clientThread.start();
+    public void start() {
+        try {
+            try {
+                serverSocket = new ServerSocket(8080);
+
+                while (true) {
+                    Socket clientSocket;
+                    clientSocket = serverSocket.accept();
+                    ClientThread clientThread = new ClientThread(processor, clientSocket);
+                    clientThread.start();
+                }
+            } finally {
+                serverSocket.close();
+                System.out.println("Сервер закрыт...");
+            }
+        } catch (IOException e) {
+            System.err.println(e + "error");
         }
 
     }

@@ -11,11 +11,7 @@ import java.net.Socket;
 public class ClientTest {
 
 
-    @BeforeClass
-    public static void startServer() {
-        ConnectionReceiver server = new ConnectionReceiver();
-        server.start();
-    }
+
 
     @Test
     public void сlient() {
@@ -28,20 +24,30 @@ public class ClientTest {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-            Message message = new Message();
-            message.setCommand("signIn");
-            message.setUsername("ainur");
-            message.setPassword("123");
 
-            String jsonString = gson.toJson(message, Message.class);
 
-            writer.write(jsonString + "\n");
-            writer.flush();
+
+
+            for (int i = 0; i < 10; i++) {
+                Message message = new Message();
+
+                message.setCommand("commmand " + i);
+                message.setUsername("name " + i);
+                message.setPassword("password " + i);
+
+                String jsonString = gson.toJson(message, Message.class);
+                writer.write(jsonString + "\n");
+                writer.flush();
+                Thread.sleep(1000);
+            }
+
 
             String signUpResponseString = reader.readLine();
             System.out.println("Получили от сервера после запроса" + signUpResponseString +"\n");
 
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }

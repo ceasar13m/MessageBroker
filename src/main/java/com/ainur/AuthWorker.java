@@ -28,7 +28,8 @@ public class AuthWorker extends Thread{
     public  void run() {
         while(true) {
             try {
-                authMessages.take();
+                AuthMessage message = authMessages.take();
+
 
                 //signIn() or signUp()
             } catch (InterruptedException e) {

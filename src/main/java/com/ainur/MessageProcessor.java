@@ -5,6 +5,7 @@ import com.ainur.model.Message;
 
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -12,24 +13,26 @@ import java.util.concurrent.BlockingQueue;
  * 10 обработчиков обрабаотывают сообщения
  */
 public class MessageProcessor  {
+
+    BlockingQueue<Message> messages;
+    BlockingQueue<AuthMessage> authMessages;
+    AuthWorker auth;
+    ArrayList<Worker> workers = new ArrayList<>();
+
+
+
     SocketsStorage socketsStorage;
     public MessageProcessor(SocketsStorage socketsStorage) {
         this.socketsStorage = socketsStorage;
+        messages = new ArrayBlockingQueue<Message>(1024);
+        authMessages = new ArrayBlockingQueue<AuthMessage>(1024);
     }
 
 
 
 
-    BlockingQueue<Message> messages;
-    BlockingQueue<AuthMessage> authMessages;
-    AuthWorker auth;
-
-
-
-    ArrayList<Worker> workers = new ArrayList<>();
-
     public void addMessage(Message message, Socket socket) {
-       if(message.getCommand().equals("SgnIn or signUp")) {
+       if(message.getCommand().equals("signIn") || message.getCommand().equals("signUp")) {
            AuthMessage authMessage = new AuthMessage(message, socket);
            authMessages.add(authMessage);
        }
