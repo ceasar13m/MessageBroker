@@ -32,6 +32,7 @@ public class MessageProcessor  {
 
 
     public void addMessage(Message message, Socket socket) {
+
        if(message.getCommand().equals("signIn") || message.getCommand().equals("signUp")) {
            AuthMessage authMessage = new AuthMessage(message, socket);
            authMessages.add(authMessage);

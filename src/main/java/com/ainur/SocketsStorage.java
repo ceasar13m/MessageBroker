@@ -11,6 +11,9 @@ public class SocketsStorage  {
     public void addClient(String id, Socket socket) {
         sockets.put(id, socket);
     }
+    public Socket getClient(String id) {
+        return sockets.get(id);
+    }
     public void removeClient(String id) {
         sockets.remove(id);
     }

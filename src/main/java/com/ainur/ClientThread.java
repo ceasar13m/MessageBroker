@@ -31,6 +31,7 @@ public class ClientThread extends Thread {
             jsonMessage = reader.readLine();
             while (true) {
                 Message message = gson.fromJson(jsonMessage, Message.class);
+                System.out.println(message);
                 processor.addMessage(message, socket);
                 jsonMessage = reader.readLine();
             }

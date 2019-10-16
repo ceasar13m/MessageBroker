@@ -25,29 +25,20 @@ public class ClientTest {
             BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
 
-
-
-
-            for (int i = 0; i < 10; i++) {
                 Message message = new Message();
 
-                message.setCommand("commmand " + i);
-                message.setUsername("name " + i);
-                message.setPassword("password " + i);
+                message.setCommand("signUp");
+                message.setUsername("name" );
+                message.setPassword("password");
 
                 String jsonString = gson.toJson(message, Message.class);
                 writer.write(jsonString + "\n");
                 writer.flush();
-                Thread.sleep(1000);
-            }
 
 
-            String signUpResponseString = reader.readLine();
-            System.out.println("Получили от сервера после запроса" + signUpResponseString +"\n");
+
 
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
