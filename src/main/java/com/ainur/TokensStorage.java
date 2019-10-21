@@ -6,23 +6,33 @@ public class TokensStorage {
 
     private Object object = new Object();
 
-    private ConcurrentHashMap<String, Object> tokensStorage = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Object> tokens;
+    private static TokensStorage tokensStorage;
+
+    private TokensStorage() {
+        tokens = new ConcurrentHashMap<>();
+    }
+
+    public static synchronized TokensStorage getTokenStorage() {
+        if (tokensStorage == null) {
+            tokensStorage = new TokensStorage();
+        }
+        return tokensStorage;
+    }
 
 
     public boolean isTokenValid(String token) {
-        return tokensStorage.containsKey(token);
+        return tokens.containsKey(token);
     }
 
     public boolean addToken(String token) {
-        if (tokensStorage.containsKey(token))
+        if (tokens.containsKey(token))
             return false;
-        tokensStorage.put(token, object);
+        tokens.put(token, object);
         return true;
     }
 
     public void removeToken(String token) {
-
-        tokensStorage.remove(token);
-
+        tokens.remove(token);
     }
 }

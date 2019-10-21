@@ -2,6 +2,7 @@ package com.ainur;
 
 import com.ainur.model.AuthMessage;
 import com.ainur.model.Message;
+import com.ainur.util.MessageType;
 
 import java.net.Socket;
 import java.util.ArrayList;
@@ -18,10 +19,10 @@ public class MessageProcessor  {
     BlockingQueue<AuthMessage> authMessages;
     AuthWorker auth;
     ArrayList<Worker> workers = new ArrayList<>();
-
-
-
     SocketsStorage socketsStorage;
+
+
+
     public MessageProcessor(SocketsStorage socketsStorage) {
         this.socketsStorage = socketsStorage;
         messages = new ArrayBlockingQueue<Message>(1024);
@@ -33,12 +34,26 @@ public class MessageProcessor  {
 
     public void addMessage(Message message, Socket socket) {
 
-       if(message.getCommand().equals("signIn") || message.getCommand().equals("signUp")) {
-           AuthMessage authMessage = new AuthMessage(message, socket);
-           authMessages.add(authMessage);
-       }
-       else
-           messages.add(message);
+        switch (message.getCommand()) {
+            case MessageType.SIGNIN: {
+                AuthMessage authMessage = new AuthMessage(message, socket);
+                authMessages.add(authMessage);
+                break;
+            }
+            case MessageType.SIGNUP: {
+                AuthMessage authMessage = new AuthMessage(message, socket);
+                authMessages.add(authMessage);
+                break;
+            }
+            case MessageType.PUBLISH: {
+                messages.add(message);
+            }
+            case MessageType.SUBSCRIBE: {
+                messages.add(message);
+            }
+        }
+
+
     }
 
     public  void startWorkers() {

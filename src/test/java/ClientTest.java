@@ -1,6 +1,7 @@
 
 import com.ainur.ConnectionReceiver;
-import com.ainur.model.Message;
+import com.ainur.model.*;
+import com.ainur.util.MessageType;
 import com.google.gson.Gson;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -13,9 +14,11 @@ public class ClientTest {
 
 
 
+
     @Test
     public void сlient() {
         Gson gson = new Gson();
+        String token;
 
 
         try {
@@ -25,15 +28,48 @@ public class ClientTest {
             BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
 
-                Message message = new Message();
+            Message message = new Message();
+            SignUpMessage signUpMessage = new SignUpMessage();
+            signUpMessage.setUsername("rafil");
+            signUpMessage.setPassword("1112");
 
-                message.setCommand("signUp");
-                message.setUsername("name" );
-                message.setPassword("password");
+            message.setCommand(MessageType.SIGNUP);
+            message.setData(gson.toJson(signUpMessage, SignUpMessage.class));
 
-                String jsonString = gson.toJson(message, Message.class);
-                writer.write(jsonString + "\n");
-                writer.flush();
+            String jsonString = gson.toJson(message, Message.class);
+            writer.write(jsonString + "\n");
+            writer.flush();
+
+
+
+            SignInMessage signInMessage = new SignInMessage();
+            signInMessage.setUsername("rafil");
+            signInMessage.setPassword("1112");
+
+            message.setCommand(MessageType.SIGNIN);
+            message.setData(gson.toJson(signInMessage, SignInMessage.class));
+
+            jsonString = gson.toJson(message, Message.class);
+            writer.write(jsonString + "\n");
+            writer.flush();
+            Response response = gson.fromJson(reader.readLine(), Response.class);
+
+
+            SubscribeMessage subscribeMessage = new SubscribeMessage();
+            subscribeMessage.setToken(response.getToken());
+            subscribeMessage.setChanel("222");
+            message.setCommand(MessageType.SUBSCRIBE);
+            message.setData(gson.toJson(subscribeMessage, SubscribeMessage.class));
+
+            writer.write(gson.toJson(message, Message.class) + "\n");
+            writer.flush();
+
+
+
+
+
+
+
 
 
 
@@ -42,6 +78,9 @@ public class ClientTest {
             e.printStackTrace();
         }
     }
+
+
+
 }
 
 

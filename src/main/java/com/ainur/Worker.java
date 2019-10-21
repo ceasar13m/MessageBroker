@@ -1,12 +1,17 @@
 package com.ainur;
 
 import com.ainur.model.Message;
+import com.ainur.model.PublishMessage;
+import com.ainur.model.SubscribeMessage;
+import com.ainur.util.MessageType;
+import com.google.gson.Gson;
 
 import java.util.concurrent.BlockingQueue;
 
 public class Worker extends Thread{
     SocketsStorage socketsStorage;
     BlockingQueue<Message> messages;
+    Gson gson;
 
     public Worker(SocketsStorage socketsStorage, BlockingQueue<Message> messages) {
         this.messages = messages;
@@ -20,7 +25,9 @@ public class Worker extends Thread{
         while(true) {
             try {
                 Message message = messages.take();
-                System.out.println(message.getPassword());
+                if(message.getCommand() == MessageType.SUBSCRIBE) {
+                    System.out.println(message.getData());
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -30,4 +37,6 @@ public class Worker extends Thread{
     public void stopWorker() {
 
     }
+
+
 }

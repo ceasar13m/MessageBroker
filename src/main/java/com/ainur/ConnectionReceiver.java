@@ -12,11 +12,13 @@ public class ConnectionReceiver {
     private MessageProcessor processor;
     private ServerSocket serverSocket;
     private SocketsStorage socketsStorage = new SocketsStorage();
+    TokensStorage tokensStorage;
 
 
     public ConnectionReceiver() {
         processor = new MessageProcessor(socketsStorage);
         processor.startWorkers();
+        tokensStorage.getTokenStorage();
     }
 
     public void start() {

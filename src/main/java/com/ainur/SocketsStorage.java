@@ -18,5 +18,6 @@ public class SocketsStorage  {
         sockets.remove(id);
     }
     public void notifyClients() {
+
     }
 }
