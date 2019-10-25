@@ -1,10 +1,10 @@
 package com.ainur.model;
 
-public class Response {
+public class StatusResponse {
 
-    public int code;
+    private int code;
 
-    public String token;
+    private String token;
 
     public int getCode() {
         return code;

@@ -15,11 +15,11 @@ import java.util.concurrent.BlockingQueue;
  */
 public class MessageProcessor  {
 
-    BlockingQueue<Message> messages;
-    BlockingQueue<AuthMessage> authMessages;
-    AuthWorker auth;
-    ArrayList<Worker> workers = new ArrayList<>();
-    SocketsStorage socketsStorage;
+    private BlockingQueue<Message> messages;
+    private BlockingQueue<AuthMessage> authMessages;
+    private AuthWorker auth;
+    private ArrayList<Worker> workers = new ArrayList<>();
+    private SocketsStorage socketsStorage;
 
 
 

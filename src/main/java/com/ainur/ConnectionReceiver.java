@@ -12,7 +12,7 @@ public class ConnectionReceiver {
     private MessageProcessor processor;
     private ServerSocket serverSocket;
     private SocketsStorage socketsStorage = new SocketsStorage();
-    TokensStorage tokensStorage;
+    private TokensStorage tokensStorage;
 
 
     public ConnectionReceiver() {

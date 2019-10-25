@@ -5,9 +5,6 @@ public class Message {
     private String data;
 
 
-
-
-
     public int getCommand() {
         return command;
     }

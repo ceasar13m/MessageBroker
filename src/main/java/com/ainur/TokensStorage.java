@@ -1,12 +1,13 @@
 package com.ainur;
 
+import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TokensStorage {
 
-    private Object object = new Object();
+    private Socket socket = new Socket();
 
-    private ConcurrentHashMap<String, Object> tokens;
+    private ConcurrentHashMap<String, Socket> tokens;
     private static TokensStorage tokensStorage;
 
     private TokensStorage() {
@@ -25,14 +26,14 @@ public class TokensStorage {
         return tokens.containsKey(token);
     }
 
-    public boolean addToken(String token) {
+    public synchronized boolean addToken(String token, Socket socket) {
         if (tokens.containsKey(token))
             return false;
-        tokens.put(token, object);
+        tokens.put(token, socket);
         return true;
     }
 
-    public void removeToken(String token) {
+    public synchronized void removeToken(String token) {
         tokens.remove(token);
     }
 }

@@ -12,14 +12,13 @@ import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 
 public class AuthWorker extends Thread {
-    SocketsStorage socketsStorage;
-    BlockingQueue<AuthMessage> authMessages;
-    Gson gson;
-    BufferedWriter writer;
-    BufferedReader reader;
-    UUID uuid;
-
-    TokensStorage tokensStorage;
+    private SocketsStorage socketsStorage;
+    private BlockingQueue<AuthMessage> authMessages;
+    private Gson gson;
+    private BufferedWriter writer;
+    private BufferedReader reader;
+    private UUID uuid;
+    private TokensStorage tokensStorage;
 
     private static final String URL = "jdbc:mysql://localhost:3306" +
             "?verifyServerCertificate=false" +
@@ -48,6 +47,7 @@ public class AuthWorker extends Thread {
 
             statement.executeUpdate(
                     "CREATE TABLE if not exists users (" +
+                            "    id int AUTO_INCREMENT not null PRIMARY KEY," +
                             "    username varchar (30) not null," +
                             "    password varchar (30) not null" +
                             ");");
@@ -68,19 +68,23 @@ public class AuthWorker extends Thread {
 
                 if (isLoginPasswordValid(signInMessage.getUsername(), signInMessage.getPassword())) {
                     uuid = UUID.randomUUID();
-                    Response response = createResponse(HttpStatus.OK, uuid.toString());
-                    String stringResponse = gson.toJson(response, Response.class) + "\n";
+                    StatusResponse response = createResponse(HttpStatus.OK, uuid.toString());
+                    String stringResponse = gson.toJson(response, StatusResponse.class) + "\n";
                     writer.write(stringResponse);
                     writer.flush();
-                    TokensStorage.getTokenStorage().addToken(uuid.toString());
+                    TokensStorage.getTokenStorage().addToken(uuid.toString(), socket);
                 } else {
-                    Response response = createResponse(HttpStatus.FORBIDDEN, null);
-                    String stringResponse = gson.toJson(response, Response.class) + "\n";
+                    StatusResponse response = createResponse(HttpStatus.UNAUTHORIZED, null);
+                    String stringResponse = gson.toJson(response, StatusResponse.class) + "\n";
                     writer.write(stringResponse);
                     writer.flush();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                try {
+                    socket.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
             }
     }
 
@@ -100,14 +104,14 @@ public class AuthWorker extends Thread {
                 String userInsertString = "insert into users (username, password) values ('" + signUpMessage.getUsername() + "','" + signUpMessage.getPassword() + "');";
                 statement.executeUpdate(userInsertString);
 
-                Response response = createResponse(HttpStatus.OK, uuid.toString());
-                String stringResponse = gson.toJson(response, Response.class) + "\n";
+                StatusResponse response = createResponse(HttpStatus.OK, uuid.toString());
+                String stringResponse = gson.toJson(response, StatusResponse.class) + "\n";
                 writer.write(stringResponse);
                 writer.flush();
-                TokensStorage.getTokenStorage().addToken(uuid.toString());
+                TokensStorage.getTokenStorage().addToken(uuid.toString(), socket);
             } else {
-                Response response = createResponse(HttpStatus.FORBIDDEN, uuid.toString());
-                String stringResponse = gson.toJson(response, Response.class) + "\n";
+                StatusResponse response = createResponse(HttpStatus.FORBIDDEN, uuid.toString());
+                String stringResponse = gson.toJson(response, StatusResponse.class) + "\n";
                 writer.write(stringResponse);
                 writer.flush();
             }
@@ -181,8 +185,8 @@ public class AuthWorker extends Thread {
     }
 
 
-    private static Response createResponse(int code, String token) {
-        Response response = new Response();
+    private static StatusResponse createResponse(int code, String token) {
+        StatusResponse response = new StatusResponse();
         response.setCode(code);
         response.setToken(token);
 

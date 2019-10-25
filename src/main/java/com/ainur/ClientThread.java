@@ -14,8 +14,8 @@ public class ClientThread extends Thread {
     private Socket socket;
     private BufferedWriter writer;
     private BufferedReader reader;
-    MessageProcessor processor;
-    Gson gson = new Gson();
+    private MessageProcessor processor;
+    private Gson gson = new Gson();
 
     public ClientThread(MessageProcessor processor, Socket socket) {
         this.socket = socket;

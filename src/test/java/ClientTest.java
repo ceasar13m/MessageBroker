@@ -1,9 +1,7 @@
 
-import com.ainur.ConnectionReceiver;
 import com.ainur.model.*;
 import com.ainur.util.MessageType;
 import com.google.gson.Gson;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.*;
@@ -52,7 +50,7 @@ public class ClientTest {
             jsonString = gson.toJson(message, Message.class);
             writer.write(jsonString + "\n");
             writer.flush();
-            Response response = gson.fromJson(reader.readLine(), Response.class);
+            StatusResponse response = gson.fromJson(reader.readLine(), StatusResponse.class);
 
 
             SubscribeMessage subscribeMessage = new SubscribeMessage();
