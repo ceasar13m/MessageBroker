@@ -5,9 +5,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class TokensStorage {
 
-    private Socket socket = new Socket();
 
-    private ConcurrentHashMap<String, Socket> tokens;
+    private ConcurrentHashMap<String, String> tokens;
     private static TokensStorage tokensStorage;
 
     private TokensStorage() {
@@ -22,18 +21,22 @@ public class TokensStorage {
     }
 
 
-    public boolean isTokenValid(String token) {
+    public synchronized boolean isTokenValid(String token) {
         return tokens.containsKey(token);
     }
 
-    public synchronized boolean addToken(String token, Socket socket) {
+    public synchronized boolean addToken(String token, String id) {
         if (tokens.containsKey(token))
             return false;
-        tokens.put(token, socket);
+        tokens.put(token, id);
         return true;
     }
 
     public synchronized void removeToken(String token) {
         tokens.remove(token);
+    }
+
+    public synchronized String getUserId(String token) {
+        return tokens.get(token);
     }
 }

@@ -60,32 +60,34 @@ public class AuthWorker extends Thread {
     public void signIn(Message message, Socket socket) {
 
         SignInMessage signInMessage = gson.fromJson(message.getData(), SignInMessage.class);
+        try {
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-            try {
-                reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
 
-                if (isLoginPasswordValid(signInMessage.getUsername(), signInMessage.getPassword())) {
-                    uuid = UUID.randomUUID();
-                    StatusResponse response = createResponse(HttpStatus.OK, uuid.toString());
-                    String stringResponse = gson.toJson(response, StatusResponse.class) + "\n";
-                    writer.write(stringResponse);
-                    writer.flush();
-                    TokensStorage.getTokenStorage().addToken(uuid.toString(), socket);
-                } else {
-                    StatusResponse response = createResponse(HttpStatus.UNAUTHORIZED, null);
-                    String stringResponse = gson.toJson(response, StatusResponse.class) + "\n";
-                    writer.write(stringResponse);
-                    writer.flush();
-                }
-            } catch (IOException e) {
-                try {
-                    socket.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
+            if (isLoginPasswordValid(signInMessage.getUsername(), signInMessage.getPassword())) {
+                uuid = UUID.randomUUID();
+                StatusResponse response = createResponse(HttpStatus.OK, uuid.toString());
+                String stringResponse = gson.toJson(response, StatusResponse.class) + "\n";
+                writer.write(stringResponse);
+                writer.flush();
+                TokensStorage.getTokenStorage().addToken(uuid.toString(), getUserId(signInMessage.getUsername()));
+                SocketsStorage.getSocketsStorage().addSocket(getUserId(signInMessage.getUsername()), socket);
+            } else {
+                StatusResponse response = createResponse(HttpStatus.UNAUTHORIZED, null);
+                String stringResponse = gson.toJson(response, StatusResponse.class) + "\n";
+                writer.write(stringResponse);
+                writer.flush();
             }
+        } catch (IOException e) {
+            try {
+                socket.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+
     }
 
 
@@ -108,7 +110,7 @@ public class AuthWorker extends Thread {
                 String stringResponse = gson.toJson(response, StatusResponse.class) + "\n";
                 writer.write(stringResponse);
                 writer.flush();
-                TokensStorage.getTokenStorage().addToken(uuid.toString(), socket);
+                TokensStorage.getTokenStorage().addToken(uuid.toString(), signUpMessage.getUsername());
             } else {
                 StatusResponse response = createResponse(HttpStatus.FORBIDDEN, uuid.toString());
                 String stringResponse = gson.toJson(response, StatusResponse.class) + "\n";
@@ -117,10 +119,26 @@ public class AuthWorker extends Thread {
             }
         } catch (IOException e) {
             e.printStackTrace();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
+    }
+
+
+    public void disconnect(Message message, Socket socket) {
+        DisconnectMessage disconnectMessage = gson.fromJson(message.getData(), DisconnectMessage.class);
+        TokensStorage.getTokenStorage().removeToken(disconnectMessage.getToken());
+        try {
+            StatusResponse response = createResponse(HttpStatus.OK, null);
+            String stringResponse = gson.toJson(response, StatusResponse.class) + "\n";
+            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            writer.write(stringResponse);
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean isUserExists(String login) {
@@ -144,6 +162,22 @@ public class AuthWorker extends Thread {
 
     }
 
+    public String getUserId(String login) {
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            statement.executeUpdate("use authorization ");
+            String tempString = "select * from users where username = '" + login + "'";
+            ResultSet resultSet = statement.executeQuery(tempString);
+
+            return resultSet.getString(1);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     public boolean isLoginPasswordValid(String login, String password) {
         Statement statement = null;
@@ -153,7 +187,7 @@ public class AuthWorker extends Thread {
             String tempString = "select * from users where username = '" + login + "'";
             ResultSet resultSet = statement.executeQuery(tempString);
             if (resultSet.next()) {
-                if (resultSet.getString(1).equals(login) && resultSet.getString(2).equals(password))
+                if (resultSet.getString(2).equals(login) && resultSet.getString(3).equals(password))
                     return true;
                 else
                     return false;
@@ -175,8 +209,10 @@ public class AuthWorker extends Thread {
                 AuthMessage authMessage = authMessages.take();
                 if (authMessage.getMessage().getCommand() == MessageType.SIGNIN)
                     signIn(authMessage.getMessage(), authMessage.getSocket());
-                else
+                else if (authMessage.getMessage().getCommand() == MessageType.SIGNUP)
                     signUp(authMessage.getMessage(), authMessage.getSocket());
+                else if (authMessage.getMessage().getCommand() == MessageType.DISCONNECT)
+                    disconnect(authMessage.getMessage(), authMessage.getSocket());
 
             } catch (InterruptedException e) {
                 e.printStackTrace();

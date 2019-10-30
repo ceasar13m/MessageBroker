@@ -27,12 +27,11 @@ public class ClientTest {
 
 
             Message message = new Message();
-            SignUpMessage signUpMessage = new SignUpMessage();
-            signUpMessage.setUsername("rafil");
-            signUpMessage.setPassword("1112");
+            DisconnectMessage disconnectMessage = new DisconnectMessage();
 
-            message.setCommand(MessageType.SIGNUP);
-            message.setData(gson.toJson(signUpMessage, SignUpMessage.class));
+
+            message.setCommand(MessageType.DISCONNECT);
+            message.setData(gson.toJson(disconnectMessage, DisconnectMessage.class));
 
             String jsonString = gson.toJson(message, Message.class);
             writer.write(jsonString + "\n");

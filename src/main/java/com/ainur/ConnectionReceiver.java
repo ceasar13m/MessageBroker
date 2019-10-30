@@ -11,14 +11,13 @@ import java.sql.Statement;
 public class ConnectionReceiver {
     private MessageProcessor processor;
     private ServerSocket serverSocket;
-    private SocketsStorage socketsStorage = new SocketsStorage();
-    private TokensStorage tokensStorage;
+    private SocketsStorage socketsStorage;
 
 
     public ConnectionReceiver() {
         processor = new MessageProcessor(socketsStorage);
         processor.startWorkers();
-        tokensStorage.getTokenStorage();
+        TokensStorage.getTokenStorage();
     }
 
     public void start() {

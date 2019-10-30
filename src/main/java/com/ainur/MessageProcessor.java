@@ -13,7 +13,7 @@ import java.util.concurrent.BlockingQueue;
  * blockingQueue <- message
  * 10 обработчиков обрабаотывают сообщения
  */
-public class MessageProcessor  {
+public class MessageProcessor {
 
     private BlockingQueue<Message> messages;
     private BlockingQueue<AuthMessage> authMessages;
@@ -22,14 +22,11 @@ public class MessageProcessor  {
     private SocketsStorage socketsStorage;
 
 
-
     public MessageProcessor(SocketsStorage socketsStorage) {
         this.socketsStorage = socketsStorage;
         messages = new ArrayBlockingQueue<Message>(1024);
         authMessages = new ArrayBlockingQueue<AuthMessage>(1024);
     }
-
-
 
 
     public void addMessage(Message message, Socket socket) {
@@ -51,12 +48,20 @@ public class MessageProcessor  {
             case MessageType.SUBSCRIBE: {
                 messages.add(message);
             }
+            case MessageType.DISCONNECT: {
+                AuthMessage authMessage = new AuthMessage(message, socket);
+                authMessages.add(authMessage);
+                break;
+            }
+            case MessageType.CREATECHANNEL: {
+                messages.add(message);
+            }
         }
 
 
     }
 
-    public  void startWorkers() {
+    public void startWorkers() {
         for (int i = 0; i < 10; i++) {
             Worker worker = new Worker(socketsStorage, messages);
             workers.add(worker);
@@ -67,8 +72,8 @@ public class MessageProcessor  {
 
     }
 
-    public  void stopWorkers() {
-        for (Worker worker: workers) {
+    public void stopWorkers() {
+        for (Worker worker : workers) {
             worker.stopWorker();
         }
     }

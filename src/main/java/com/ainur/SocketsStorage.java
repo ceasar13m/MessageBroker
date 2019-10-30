@@ -6,17 +6,31 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 public class SocketsStorage  {
-    private ConcurrentHashMap <String, Socket> sockets = new ConcurrentHashMap<String, Socket>();
-    public void addClient(String id, Socket socket) {
-        sockets.put(id, socket);
+    private ConcurrentHashMap<String, Socket> sockets;
+    private static SocketsStorage socketsStorage;
+
+
+    private SocketsStorage() {
+        sockets = new ConcurrentHashMap<>();
     }
-    public Socket getClient(String id) {
+
+    public static synchronized SocketsStorage getSocketsStorage() {
+        if (socketsStorage == null) {
+            socketsStorage = new SocketsStorage();
+        }
+        return socketsStorage;
+    }
+
+
+    public synchronized boolean addSocket(String id, Socket socket) {
+        if (sockets.containsKey(id))
+            return false;
+        sockets.put(id, socket);
+        return true;
+    }
+
+    public synchronized Socket getSocket(String id) {
         return sockets.get(id);
     }
-    public void removeClient(String id) {
-        sockets.remove(id);
-    }
-    public void notifyClients() {
 
-    }
 }
