@@ -1,4 +1,4 @@
-package com.ainur.model;
+package com.ainur.model.messages;
 
 public class DisconnectMessage {
 

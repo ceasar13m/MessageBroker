@@ -1,8 +1,9 @@
-package com.ainur.model;
+package com.ainur.model.messages;
 
-public class SignUpMessage {
+public class SignInMessage {
     private String username;
     private String password;
+    private String token;
 
     public String getUsername() {
         return username;
@@ -20,5 +21,11 @@ public class SignUpMessage {
         this.password = password;
     }
 
+    public String getToken() {
+        return token;
+    }
 
+    public void setToken(String token) {
+        this.token = token;
+    }
 }

@@ -11,11 +11,15 @@ import java.sql.Statement;
 public class ConnectionReceiver {
     private MessageProcessor processor;
     private ServerSocket serverSocket;
-    private SocketsStorage socketsStorage;
+
+    public static void main(String[] args) {
+        ConnectionReceiver server = new ConnectionReceiver();
+        server.start();
+    }
 
 
     public ConnectionReceiver() {
-        processor = new MessageProcessor(socketsStorage);
+        processor = new MessageProcessor(SocketsStorage.getSocketsStorage());
         processor.startWorkers();
         TokensStorage.getTokenStorage();
     }
@@ -23,7 +27,7 @@ public class ConnectionReceiver {
     public void start() {
         try {
             try {
-                serverSocket = new ServerSocket(8080);
+                serverSocket = new ServerSocket(8000);
 
                 while (true) {
                     Socket clientSocket;

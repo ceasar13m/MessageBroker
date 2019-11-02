@@ -1,8 +1,8 @@
 package com.ainur;
 
-import com.ainur.model.CreateChannelMessage;
-import com.ainur.model.Message;
-import com.ainur.model.StatusResponse;
+import com.ainur.model.messages.CreateChannelMessage;
+import com.ainur.model.messages.Message;
+import com.ainur.model.responses.StatusResponse;
 import com.ainur.util.HttpStatus;
 import com.ainur.util.MessageType;
 import com.google.gson.Gson;
@@ -12,15 +12,13 @@ import java.net.Socket;
 import java.sql.*;
 import java.util.concurrent.BlockingQueue;
 
-public class Worker extends Thread{
+public class Worker extends Thread {
     private BufferedWriter writer;
     private BufferedReader reader;
     private SocketsStorage socketsStorage;
     private BlockingQueue<Message> messages;
     private Gson gson;
     private static Connection connection;
-
-
 
 
     private static final String URL = "jdbc:mysql://localhost:3306" +
@@ -32,7 +30,6 @@ public class Worker extends Thread{
             "&serverTimezone=UTC";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "kazan13m";
-
 
 
     public Worker(SocketsStorage socketsStorage, BlockingQueue<Message> messages) {
@@ -53,7 +50,7 @@ public class Worker extends Thread{
             statement.executeUpdate(
                     "CREATE TABLE if not exists channels (" +
                             "    id int AUTO_INCREMENT not null PRIMARY KEY," +
-                            "    channelName varchar (30) not null," +
+                            "    channelName varchar (30) not null" +
                             ");");
 
         } catch (SQLException e) {
@@ -62,13 +59,12 @@ public class Worker extends Thread{
     }
 
 
-
     /**
      *
      */
     @Override
     public void run() {
-        while(true) {
+        while (true) {
             try {
                 Message message = messages.take();
                 switch (message.getCommand()) {
@@ -82,7 +78,7 @@ public class Worker extends Thread{
                         break;
                     }
 
-                    case MessageType.CREATECHANNEL: {
+                    case MessageType.CREATE_CHANNEL: {
                         createChannel(message);
                     }
                 }
@@ -106,55 +102,45 @@ public class Worker extends Thread{
     }
 
     private void createChannel(Message message) {
-
         CreateChannelMessage createChannelMessage = gson.fromJson(message.getData(), CreateChannelMessage.class);
         Statement statement = null;
         String userId = TokensStorage.getTokenStorage().getUserId(createChannelMessage.getToken());
-        Socket socket = SocketsStorage.getSocketsStorage().getSocket(userId);
-
 
         try {
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-            if (TokensStorage.getTokenStorage().isTokenValid(createChannelMessage.getToken())) {
+                Socket socket = SocketsStorage.getSocketsStorage().getSocket(userId);
+                writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                statement = connection.createStatement();
+                statement.executeUpdate("use authorization;");
+                String userInsertString = "insert into channels (channelName) values ('" + createChannelMessage.getChanelName() + "');";
+                statement.executeUpdate(userInsertString);
 
-                try {
-
-
-                    statement = connection.createStatement();
-                    statement.executeUpdate("use authorization;");
-                    String userInsertString = "insert into channels (channelName) values ('" + createChannelMessage.getChanel() + "');";
-                    statement.executeUpdate(userInsertString);
-
-                    String tempString = "select * from channels where channelName = '" + createChannelMessage.getChanel() + "'";
-                    ResultSet resultSet = statement.executeQuery(tempString);
-                    if (resultSet.next()) {
-                        StatusResponse statusResponse = createResponse(HttpStatus.OK, null);
-                        String stringResponse = gson.toJson(statusResponse, StatusResponse.class) + "\n";
-                        writer.write(stringResponse);
-                        writer.flush();
-                    }
-
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                String tempString = "select * from channels where channelName = '" + createChannelMessage.getChanelName() + "'";
+                ResultSet resultSet = statement.executeQuery(tempString);
+                if (resultSet.next()) {
+                    StatusResponse statusResponse = createResponse(HttpStatus.OK);
+                    String stringResponse = gson.toJson(statusResponse, StatusResponse.class) + "\n";
+                    writer.write(stringResponse);
+                    writer.flush();
+                }else {
+                    StatusResponse statusResponse = createResponse(HttpStatus.FORBIDDEN);
+                    String stringResponse = gson.toJson(statusResponse, StatusResponse.class) + "\n";
+                    writer.write(stringResponse);
+                    writer.flush();
                 }
-            } else {
 
-            }
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
     }
 
 
-
-
-    private static StatusResponse createResponse(int code, String token) {
+    private static StatusResponse createResponse(int code) {
         StatusResponse response = new StatusResponse();
-        response.setCode(code);
-        response.setToken(token);
+        response.setStatusCode(code);
 
         return response;
     }

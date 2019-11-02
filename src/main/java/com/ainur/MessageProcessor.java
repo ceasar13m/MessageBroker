@@ -1,9 +1,16 @@
 package com.ainur;
 
-import com.ainur.model.AuthMessage;
-import com.ainur.model.Message;
+import com.ainur.model.messages.AuthMessage;
+import com.ainur.model.messages.CreateChannelMessage;
+import com.ainur.model.messages.Message;
+import com.ainur.model.responses.StatusResponse;
+import com.ainur.util.HttpStatus;
 import com.ainur.util.MessageType;
+import com.google.gson.Gson;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -20,9 +27,12 @@ public class MessageProcessor {
     private AuthWorker auth;
     private ArrayList<Worker> workers = new ArrayList<>();
     private SocketsStorage socketsStorage;
+    private Gson gson;
 
 
     public MessageProcessor(SocketsStorage socketsStorage) {
+        TokensStorage.getTokenStorage();
+        gson = new Gson();
         this.socketsStorage = socketsStorage;
         messages = new ArrayBlockingQueue<Message>(1024);
         authMessages = new ArrayBlockingQueue<AuthMessage>(1024);
@@ -32,12 +42,12 @@ public class MessageProcessor {
     public void addMessage(Message message, Socket socket) {
 
         switch (message.getCommand()) {
-            case MessageType.SIGNIN: {
+            case MessageType.SIGN_IN: {
                 AuthMessage authMessage = new AuthMessage(message, socket);
                 authMessages.add(authMessage);
                 break;
             }
-            case MessageType.SIGNUP: {
+            case MessageType.SIGN_UP: {
                 AuthMessage authMessage = new AuthMessage(message, socket);
                 authMessages.add(authMessage);
                 break;
@@ -53,8 +63,21 @@ public class MessageProcessor {
                 authMessages.add(authMessage);
                 break;
             }
-            case MessageType.CREATECHANNEL: {
-                messages.add(message);
+            case MessageType.CREATE_CHANNEL: {
+                CreateChannelMessage createChannelMessage = gson.fromJson(message.getData(), CreateChannelMessage.class);
+                if(TokensStorage.getTokenStorage().isTokenValid(createChannelMessage.getToken())) {
+                    messages.add(message);
+                } else {
+                    try {
+                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                        StatusResponse statusResponse = new StatusResponse();
+                        statusResponse.setStatusCode(HttpStatus.FORBIDDEN);
+                        writer.write(gson.toJson(statusResponse, StatusResponse.class) + "\n");
+                        writer.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
 

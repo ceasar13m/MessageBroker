@@ -13,7 +13,7 @@ public class TokensStorage {
         tokens = new ConcurrentHashMap<>();
     }
 
-    public static synchronized TokensStorage getTokenStorage() {
+    public static TokensStorage getTokenStorage() {
         if (tokensStorage == null) {
             tokensStorage = new TokensStorage();
         }
@@ -21,22 +21,22 @@ public class TokensStorage {
     }
 
 
-    public synchronized boolean isTokenValid(String token) {
+    public boolean isTokenValid(String token) {
         return tokens.containsKey(token);
     }
 
-    public synchronized boolean addToken(String token, String id) {
+    public boolean addToken(String token, String id) {
         if (tokens.containsKey(token))
             return false;
         tokens.put(token, id);
         return true;
     }
 
-    public synchronized void removeToken(String token) {
+    public void removeToken(String token) {
         tokens.remove(token);
     }
 
-    public synchronized String getUserId(String token) {
+    public String getUserId(String token) {
         return tokens.get(token);
     }
 }

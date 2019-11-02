@@ -1,6 +1,6 @@
 package com.ainur;
 
-import com.ainur.model.Message;
+import com.ainur.model.messages.Message;
 import com.google.gson.Gson;
 
 import java.io.*;

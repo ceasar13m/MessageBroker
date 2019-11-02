@@ -5,7 +5,7 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-public class SocketsStorage  {
+public class SocketsStorage {
     private ConcurrentHashMap<String, Socket> sockets;
     private static SocketsStorage socketsStorage;
 
@@ -14,7 +14,7 @@ public class SocketsStorage  {
         sockets = new ConcurrentHashMap<>();
     }
 
-    public static synchronized SocketsStorage getSocketsStorage() {
+    public static SocketsStorage getSocketsStorage() {
         if (socketsStorage == null) {
             socketsStorage = new SocketsStorage();
         }
@@ -22,15 +22,16 @@ public class SocketsStorage  {
     }
 
 
-    public synchronized boolean addSocket(String id, Socket socket) {
+    public boolean addSocket(String id, Socket socket) {
         if (sockets.containsKey(id))
             return false;
         sockets.put(id, socket);
         return true;
     }
 
-    public synchronized Socket getSocket(String id) {
+    public Socket getSocket(String id) {
         return sockets.get(id);
+
     }
 
 }

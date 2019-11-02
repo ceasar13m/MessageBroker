@@ -1,6 +1,7 @@
 package com.ainur;
 
-import com.ainur.model.*;
+import com.ainur.model.messages.*;
+import com.ainur.model.responses.StatusResponse;
 import com.ainur.util.HttpStatus;
 import com.ainur.util.MessageType;
 import com.google.gson.Gson;
@@ -65,7 +66,6 @@ public class AuthWorker extends Thread {
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
 
-
             if (isLoginPasswordValid(signInMessage.getUsername(), signInMessage.getPassword())) {
                 uuid = UUID.randomUUID();
                 StatusResponse response = createResponse(HttpStatus.OK, uuid.toString());
@@ -75,7 +75,7 @@ public class AuthWorker extends Thread {
                 TokensStorage.getTokenStorage().addToken(uuid.toString(), getUserId(signInMessage.getUsername()));
                 SocketsStorage.getSocketsStorage().addSocket(getUserId(signInMessage.getUsername()), socket);
             } else {
-                StatusResponse response = createResponse(HttpStatus.UNAUTHORIZED, null);
+                StatusResponse response = createResponse(HttpStatus.UNAUTHORIZED);
                 String stringResponse = gson.toJson(response, StatusResponse.class) + "\n";
                 writer.write(stringResponse);
                 writer.flush();
@@ -112,7 +112,7 @@ public class AuthWorker extends Thread {
                 writer.flush();
                 TokensStorage.getTokenStorage().addToken(uuid.toString(), signUpMessage.getUsername());
             } else {
-                StatusResponse response = createResponse(HttpStatus.FORBIDDEN, uuid.toString());
+                StatusResponse response = createResponse(HttpStatus.FORBIDDEN);
                 String stringResponse = gson.toJson(response, StatusResponse.class) + "\n";
                 writer.write(stringResponse);
                 writer.flush();
@@ -131,7 +131,7 @@ public class AuthWorker extends Thread {
         DisconnectMessage disconnectMessage = gson.fromJson(message.getData(), DisconnectMessage.class);
         TokensStorage.getTokenStorage().removeToken(disconnectMessage.getToken());
         try {
-            StatusResponse response = createResponse(HttpStatus.OK, null);
+            StatusResponse response = createResponse(HttpStatus.OK);
             String stringResponse = gson.toJson(response, StatusResponse.class) + "\n";
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             writer.write(stringResponse);
@@ -162,15 +162,18 @@ public class AuthWorker extends Thread {
 
     }
 
-    public String getUserId(String login) {
+    public String getUserId(String username) {
         Statement statement = null;
         try {
             statement = connection.createStatement();
             statement.executeUpdate("use authorization ");
-            String tempString = "select * from users where username = '" + login + "'";
+            String tempString = "select * from users where username = '" + username + "'";
             ResultSet resultSet = statement.executeQuery(tempString);
 
-            return resultSet.getString(1);
+            if (resultSet.next())
+                return resultSet.getString(1).toString();
+            else
+                return null;
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -207,9 +210,9 @@ public class AuthWorker extends Thread {
         while (true) {
             try {
                 AuthMessage authMessage = authMessages.take();
-                if (authMessage.getMessage().getCommand() == MessageType.SIGNIN)
+                if (authMessage.getMessage().getCommand() == MessageType.SIGN_IN)
                     signIn(authMessage.getMessage(), authMessage.getSocket());
-                else if (authMessage.getMessage().getCommand() == MessageType.SIGNUP)
+                else if (authMessage.getMessage().getCommand() == MessageType.SIGN_UP)
                     signUp(authMessage.getMessage(), authMessage.getSocket());
                 else if (authMessage.getMessage().getCommand() == MessageType.DISCONNECT)
                     disconnect(authMessage.getMessage(), authMessage.getSocket());
@@ -223,9 +226,18 @@ public class AuthWorker extends Thread {
 
     private static StatusResponse createResponse(int code, String token) {
         StatusResponse response = new StatusResponse();
-        response.setCode(code);
+        response.setStatusCode(code);
         response.setToken(token);
 
         return response;
     }
+
+    private static StatusResponse createResponse(int code) {
+        StatusResponse response = new StatusResponse();
+        response.setStatusCode(code);
+
+        return response;
+    }
+
+
 }
