@@ -2,7 +2,7 @@ package com.ainur.model.messages;
 
 public class CreateChannelMessage {
     private String token;
-    private String chanelName;
+    private String channelName;
 
     public String getToken() {
         return token;
@@ -12,12 +12,12 @@ public class CreateChannelMessage {
         this.token = token;
     }
 
-    public String getChanelName() {
-        return chanelName;
+    public String getChannelName() {
+        return channelName;
     }
 
-    public void setChanelName(String chanelName) {
-        this.chanelName = chanelName;
+    public void setChannelName(String chanelName) {
+        this.channelName = chanelName;
     }
 
 

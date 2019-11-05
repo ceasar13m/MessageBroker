@@ -2,6 +2,8 @@ package com.ainur;
 
 import com.ainur.model.messages.CreateChannelMessage;
 import com.ainur.model.messages.Message;
+import com.ainur.model.messages.PublishMessage;
+import com.ainur.model.messages.SubscribeMessage;
 import com.ainur.model.responses.StatusResponse;
 import com.ainur.util.HttpStatus;
 import com.ainur.util.MessageType;
@@ -44,13 +46,30 @@ public class Worker extends Thread {
 
             Statement statement = connection.createStatement();
 
-            statement.executeUpdate("create database IF NOT EXISTS authorization;");
-            statement.executeUpdate("use authorization;");
+            statement.executeUpdate("create database IF NOT EXISTS broker;");
+            statement.executeUpdate("use broker;");
 
             statement.executeUpdate(
                     "CREATE TABLE if not exists channels (" +
                             "    id int AUTO_INCREMENT not null PRIMARY KEY," +
-                            "    channelName varchar (30) not null" +
+                            "    channel_name varchar (30) not null" +
+                            ");");
+            statement.executeUpdate(
+                    "CREATE TABLE if not exists subscriptions (" +
+                            "    subscriber int not null," +
+                            "    channel int not null," +
+                            "    FOREIGN KEY (subscriber) REFERENCES users(id), " +
+                            "    FOREIGN KEY (channel) REFERENCES channels(id) " +
+                            ");");
+            statement.executeUpdate(
+                    "CREATE TABLE if not exists messages (" +
+                            "    id int AUTO_INCREMENT NOT NULL  PRIMARY KEY," +
+                            "    send_date date not null," +
+                            "    message TEXT not null," +
+                            "    sender int not null," +
+                            "    channel int not null," +
+                            "    FOREIGN KEY (sender) REFERENCES users(id), " +
+                            "    FOREIGN KEY (channel) REFERENCES channels(id) " +
                             ");");
 
         } catch (SQLException e) {
@@ -94,11 +113,87 @@ public class Worker extends Thread {
 
 
     private void publish(Message message) {
+        PublishMessage publishMessage = gson.fromJson(message.getData(), PublishMessage.class);
+        Statement statement = null;
+        String userId = TokensStorage.getTokenStorage().getUserId(publishMessage.getToken());
 
+        try {
+            Socket socket = SocketsStorage.getSocketsStorage().getSocket(userId);
+            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            statement = connection.createStatement();
+            statement.executeUpdate("use broker;");
+
+            String tempString = "select * from channels where channel_name = '" + publishMessage.getChannelName() + "'";
+            ResultSet resultSet = statement.executeQuery(tempString);
+            int channelId;
+
+            if (resultSet.next()) {
+                channelId = Integer.parseInt(resultSet.getString(1));
+                String messageInsertString = "insert into messages (sender, channel, send_date, message) values ('"
+                        + userId + "','"
+                        + channelId + "','"
+                        + publishMessage.getDateString() + "','"
+                        + publishMessage.getMessage() + "');";
+                statement.executeUpdate(messageInsertString);
+                StatusResponse statusResponse = createResponse(HttpStatus.OK);
+                String stringResponse = gson.toJson(statusResponse, StatusResponse.class) + "\n";
+                writer.write(stringResponse);
+                writer.flush();
+
+            } else {
+                StatusResponse statusResponse = createResponse(HttpStatus.FORBIDDEN);
+                String stringResponse = gson.toJson(statusResponse, StatusResponse.class) + "\n";
+                writer.write(stringResponse);
+                writer.flush();
+            }
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void subscribe(Message message) {
+        SubscribeMessage subscribeMessage = gson.fromJson(message.getData(), SubscribeMessage.class);
+        Statement statement = null;
+        String userId = TokensStorage.getTokenStorage().getUserId(subscribeMessage.getToken());
 
+        try {
+            Socket socket = SocketsStorage.getSocketsStorage().getSocket(userId);
+            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            statement = connection.createStatement();
+            statement.executeUpdate("use broker;");
+
+            String tempString = "select * from channels where channel_name = '" + subscribeMessage.getChannelName() + "'";
+            ResultSet resultSet = statement.executeQuery(tempString);
+            int channelId;
+
+            if (resultSet.next()) {
+                channelId = Integer.parseInt(resultSet.getString(1));
+                String userInsertString = "insert into subscriptions (subscriber, channel) values ('"
+                        + TokensStorage.getTokenStorage().getUserId(subscribeMessage.getToken())
+                        + "','" + channelId + "');";
+                statement.executeUpdate(userInsertString);
+                StatusResponse statusResponse = createResponse(HttpStatus.OK);
+                String stringResponse = gson.toJson(statusResponse, StatusResponse.class) + "\n";
+                writer.write(stringResponse);
+                writer.flush();
+
+            } else {
+                StatusResponse statusResponse = createResponse(HttpStatus.FORBIDDEN);
+                String stringResponse = gson.toJson(statusResponse, StatusResponse.class) + "\n";
+                writer.write(stringResponse);
+                writer.flush();
+            }
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void createChannel(Message message) {
@@ -106,28 +201,29 @@ public class Worker extends Thread {
         Statement statement = null;
         String userId = TokensStorage.getTokenStorage().getUserId(createChannelMessage.getToken());
 
+
         try {
 
-                Socket socket = SocketsStorage.getSocketsStorage().getSocket(userId);
-                writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                statement = connection.createStatement();
-                statement.executeUpdate("use authorization;");
-                String userInsertString = "insert into channels (channelName) values ('" + createChannelMessage.getChanelName() + "');";
-                statement.executeUpdate(userInsertString);
+            Socket socket = SocketsStorage.getSocketsStorage().getSocket(userId);
+            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            statement = connection.createStatement();
+            statement.executeUpdate("use broker;");
+            String userInsertString = "insert into channels (channel_name) values ('" + createChannelMessage.getChannelName() + "');";
+            statement.executeUpdate(userInsertString);
 
-                String tempString = "select * from channels where channelName = '" + createChannelMessage.getChanelName() + "'";
-                ResultSet resultSet = statement.executeQuery(tempString);
-                if (resultSet.next()) {
-                    StatusResponse statusResponse = createResponse(HttpStatus.OK);
-                    String stringResponse = gson.toJson(statusResponse, StatusResponse.class) + "\n";
-                    writer.write(stringResponse);
-                    writer.flush();
-                }else {
-                    StatusResponse statusResponse = createResponse(HttpStatus.FORBIDDEN);
-                    String stringResponse = gson.toJson(statusResponse, StatusResponse.class) + "\n";
-                    writer.write(stringResponse);
-                    writer.flush();
-                }
+            String tempString = "select * from channels where channel_name = '" + createChannelMessage.getChannelName() + "'";
+            ResultSet resultSet = statement.executeQuery(tempString);
+            if (resultSet.next()) {
+                StatusResponse statusResponse = createResponse(HttpStatus.OK);
+                String stringResponse = gson.toJson(statusResponse, StatusResponse.class) + "\n";
+                writer.write(stringResponse);
+                writer.flush();
+            } else {
+                StatusResponse statusResponse = createResponse(HttpStatus.FORBIDDEN);
+                String stringResponse = gson.toJson(statusResponse, StatusResponse.class) + "\n";
+                writer.write(stringResponse);
+                writer.flush();
+            }
 
         } catch (IOException e) {
             e.printStackTrace();

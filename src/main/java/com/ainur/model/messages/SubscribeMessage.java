@@ -2,7 +2,7 @@ package com.ainur.model.messages;
 
 public class SubscribeMessage {
     private String token;
-    private String chanel;
+    private String channelName;
 
     public String getToken() {
         return token;
@@ -13,11 +13,11 @@ public class SubscribeMessage {
     }
 
 
-    public String getChanel() {
-        return chanel;
+    public String getChannelName() {
+        return channelName;
     }
 
-    public void setChanel(String chanel) {
-        this.chanel = chanel;
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
     }
 }

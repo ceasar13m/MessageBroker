@@ -43,8 +43,8 @@ public class AuthWorker extends Thread {
 
             Statement statement = connection.createStatement();
 
-            statement.executeUpdate("create database IF NOT EXISTS authorization ;");
-            statement.executeUpdate("use authorization;");
+            statement.executeUpdate("create database IF NOT EXISTS broker ;");
+            statement.executeUpdate("use broker;");
 
             statement.executeUpdate(
                     "CREATE TABLE if not exists users (" +
@@ -102,7 +102,7 @@ public class AuthWorker extends Thread {
 
             if (!isUserExists(signUpMessage.getUsername())) {
                 uuid = UUID.randomUUID();
-                statement.executeUpdate("use authorization;");
+                statement.executeUpdate("use broker;");
                 String userInsertString = "insert into users (username, password) values ('" + signUpMessage.getUsername() + "','" + signUpMessage.getPassword() + "');";
                 statement.executeUpdate(userInsertString);
 
@@ -145,7 +145,7 @@ public class AuthWorker extends Thread {
         Statement statement = null;
         try {
             statement = connection.createStatement();
-            statement.executeUpdate("use authorization;");
+            statement.executeUpdate("use broker;");
 
             String tempString = "select * from users where username = '" + login + "'";
             ResultSet resultSet = statement.executeQuery(tempString);
@@ -166,7 +166,7 @@ public class AuthWorker extends Thread {
         Statement statement = null;
         try {
             statement = connection.createStatement();
-            statement.executeUpdate("use authorization ");
+            statement.executeUpdate("use broker; ");
             String tempString = "select * from users where username = '" + username + "'";
             ResultSet resultSet = statement.executeQuery(tempString);
 
@@ -186,7 +186,7 @@ public class AuthWorker extends Thread {
         Statement statement = null;
         try {
             statement = connection.createStatement();
-            statement.executeUpdate("use authorization ");
+            statement.executeUpdate("use broker; ");
             String tempString = "select * from users where username = '" + login + "'";
             ResultSet resultSet = statement.executeQuery(tempString);
             if (resultSet.next()) {
