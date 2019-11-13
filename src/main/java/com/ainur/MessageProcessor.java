@@ -5,15 +5,13 @@ import com.ainur.model.responses.StatusResponse;
 import com.ainur.util.HttpStatus;
 import com.ainur.util.MessageType;
 import com.google.gson.Gson;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -29,6 +27,7 @@ public class MessageProcessor {
     private ArrayList<Worker> workers = new ArrayList<>();
     private SocketsStorage socketsStorage;
     private Gson gson;
+    private ClassPathXmlApplicationContext context;
 
 
     public MessageProcessor(SocketsStorage socketsStorage) {
@@ -62,7 +61,7 @@ public class MessageProcessor {
                     try {
                         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                         StatusResponse statusResponse = new StatusResponse();
-                        statusResponse.setStatusCode(HttpStatus.FORBIDDEN);
+                        statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
                         writer.write(gson.toJson(statusResponse, StatusResponse.class) + "\n");
                         writer.flush();
                     } catch (IOException e) {
@@ -79,7 +78,7 @@ public class MessageProcessor {
                     try {
                         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                         StatusResponse statusResponse = new StatusResponse();
-                        statusResponse.setStatusCode(HttpStatus.FORBIDDEN);
+                        statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
                         writer.write(gson.toJson(statusResponse, StatusResponse.class) + "\n");
                         writer.flush();
                     } catch (IOException e) {
@@ -97,7 +96,7 @@ public class MessageProcessor {
                     try {
                         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                         StatusResponse statusResponse = new StatusResponse();
-                        statusResponse.setStatusCode(HttpStatus.FORBIDDEN);
+                        statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
                         writer.write(gson.toJson(statusResponse, StatusResponse.class) + "\n");
                         writer.flush();
                     } catch (IOException e) {
@@ -114,7 +113,7 @@ public class MessageProcessor {
                     try {
                         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                         StatusResponse statusResponse = new StatusResponse();
-                        statusResponse.setStatusCode(HttpStatus.FORBIDDEN);
+                        statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
                         writer.write(gson.toJson(statusResponse, StatusResponse.class) + "\n");
                         writer.flush();
                     } catch (IOException e) {

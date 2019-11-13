@@ -1,5 +1,8 @@
 package com.ainur.model.messages;
 
+
+import org.springframework.stereotype.Component;
+
 public class SubscribeMessage {
     private String token;
     private String channelName;

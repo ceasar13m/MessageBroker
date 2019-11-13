@@ -1,5 +1,7 @@
 package com.ainur.model.messages;
 
+import org.springframework.stereotype.Component;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 

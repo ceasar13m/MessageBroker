@@ -1,5 +1,6 @@
 package com.ainur.model.messages;
 
+
 public class CreateChannelMessage {
     private String token;
     private String channelName;

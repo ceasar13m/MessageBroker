@@ -1,6 +1,9 @@
 package com.ainur.model.messages;
 
+import org.springframework.stereotype.Component;
+
 import java.net.Socket;
+
 
 public class AuthMessage {
     private Socket socket;

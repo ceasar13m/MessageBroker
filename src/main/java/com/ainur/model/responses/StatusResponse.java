@@ -1,21 +1,15 @@
 package com.ainur.model.responses;
 
+import org.springframework.stereotype.Component;
 
+@Component("statusResponse")
 public class StatusResponse {
 
     private int statusCode;
     private String token;
 
-    public int getStatusCode() {
-        return statusCode;
-    }
-
     public void setStatusCode(int statusCode) {
         this.statusCode = statusCode;
-    }
-
-    public String getToken() {
-        return token;
     }
 
     public void setToken(String token) {
