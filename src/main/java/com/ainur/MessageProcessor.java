@@ -5,6 +5,7 @@ import com.ainur.model.responses.StatusResponse;
 import com.ainur.util.HttpStatus;
 import com.ainur.util.MessageType;
 import com.google.gson.Gson;
+import org.java_websocket.WebSocket;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.BufferedWriter;
@@ -25,21 +26,21 @@ public class MessageProcessor {
     private BlockingQueue<AuthMessage> authMessages;
     private AuthWorker auth;
     private ArrayList<Worker> workers = new ArrayList<>();
-    private SocketsStorage socketsStorage;
+    private WebSocketsStorage webSocketsStorage;
     private Gson gson;
     private ClassPathXmlApplicationContext context;
 
 
-    public MessageProcessor(SocketsStorage socketsStorage) {
+    public MessageProcessor(WebSocketsStorage webSocketsStorage) {
         TokensStorage.getTokenStorage();
         gson = new Gson();
-        this.socketsStorage = socketsStorage;
+        this.webSocketsStorage = webSocketsStorage;
         messages = new ArrayBlockingQueue<Message>(1024);
         authMessages = new ArrayBlockingQueue<AuthMessage>(1024);
     }
 
 
-    public void addMessage(Message message, Socket socket) {
+    public void addMessage(Message message, WebSocket socket) {
 
         switch (message.getCommand()) {
             case MessageType.SIGN_IN: {
@@ -58,15 +59,8 @@ public class MessageProcessor {
                 if (publishMessage.getToken() != null && TokensStorage.getTokenStorage().isTokenValid(publishMessage.getToken())) {
                     messages.add(message);
                 } else {
-                    try {
-                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                         StatusResponse statusResponse = new StatusResponse();
                         statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
-                        writer.write(gson.toJson(statusResponse, StatusResponse.class) + "\n");
-                        writer.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                 }
                 break;
             }
@@ -75,15 +69,9 @@ public class MessageProcessor {
                 if (subscribeMessage.getToken() != null && TokensStorage.getTokenStorage().isTokenValid(subscribeMessage.getToken())) {
                     messages.add(message);
                 } else {
-                    try {
-                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                         StatusResponse statusResponse = new StatusResponse();
                         statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
-                        writer.write(gson.toJson(statusResponse, StatusResponse.class) + "\n");
-                        writer.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+
                 }
                 break;
             }
@@ -93,15 +81,9 @@ public class MessageProcessor {
                 if (disconnectMessage.getToken() != null && TokensStorage.getTokenStorage().isTokenValid(disconnectMessage.getToken())) {
                     authMessages.add(authMessage);
                 } else {
-                    try {
-                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                         StatusResponse statusResponse = new StatusResponse();
                         statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
-                        writer.write(gson.toJson(statusResponse, StatusResponse.class) + "\n");
-                        writer.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+
                 }
                 break;
             }
@@ -110,15 +92,9 @@ public class MessageProcessor {
                 if (createChannelMessage.getToken() != null && TokensStorage.getTokenStorage().isTokenValid(createChannelMessage.getToken())) {
                     messages.add(message);
                 } else {
-                    try {
-                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                         StatusResponse statusResponse = new StatusResponse();
                         statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
-                        writer.write(gson.toJson(statusResponse, StatusResponse.class) + "\n");
-                        writer.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+
                 }
                 break;
             }
@@ -129,11 +105,11 @@ public class MessageProcessor {
 
     public void startWorkers() {
         for (int i = 0; i < 10; i++) {
-            Worker worker = new Worker(socketsStorage, messages);
+            Worker worker = new Worker(webSocketsStorage, messages);
             workers.add(worker);
             worker.start();
         }
-        auth = new AuthWorker(socketsStorage, authMessages);
+        auth = new AuthWorker(webSocketsStorage, authMessages);
         auth.start();
 
     }

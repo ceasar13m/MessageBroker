@@ -7,21 +7,21 @@ import com.ainur.model.messages.SubscribeMessage;
 import com.ainur.util.HttpStatus;
 import com.ainur.util.MessageType;
 import com.google.gson.Gson;
-import java.net.Socket;
+import org.java_websocket.WebSocket;
 import java.sql.*;
 import java.util.concurrent.BlockingQueue;
 
 public class Worker extends Thread {
 
-    private SocketsStorage socketsStorage;
+    private WebSocketsStorage webSocketsStorage;
     private BlockingQueue<Message> messages;
     private Gson gson;
     DBRequest dbRequest;
 
 
-    public Worker(SocketsStorage socketsStorage, BlockingQueue<Message> messages) {
+    public Worker(WebSocketsStorage webSocketsStorage, BlockingQueue<Message> messages) {
         this.messages = messages;
-        this.socketsStorage = socketsStorage;
+        this.webSocketsStorage = webSocketsStorage;
         gson = new Gson();
         dbRequest = new DBRequest();
     }
@@ -66,7 +66,7 @@ public class Worker extends Thread {
         Statement statement = null;
         String userId = TokensStorage.getTokenStorage().getUserId(publishMessage.getToken());
         try {
-            Socket socket = SocketsStorage.getSocketsStorage().getSocket(userId);
+            WebSocket socket = WebSocketsStorage.getWebSocketsStorage().getSocket(userId);
             String sqlString = "select * from channels where channel = '" + publishMessage.getChannelName() + "'";
             ResultSet resultSet = dbRequest.getResult(sqlString);
             int channelId;
@@ -92,7 +92,7 @@ public class Worker extends Thread {
         SubscribeMessage subscribeMessage = gson.fromJson(message.getData(), SubscribeMessage.class);
         String userId = TokensStorage.getTokenStorage().getUserId(subscribeMessage.getToken());
         try {
-            Socket socket = SocketsStorage.getSocketsStorage().getSocket(userId);
+            WebSocket socket = WebSocketsStorage.getWebSocketsStorage().getSocket(userId);
             String sqlString = "select * from channels where channel = '" + subscribeMessage.getChannelName() + "'";
             ResultSet resultSet = dbRequest.getResult(sqlString);
             int channelId;
@@ -115,7 +115,7 @@ public class Worker extends Thread {
         CreateChannelMessage createChannelMessage = gson.fromJson(message.getData(), CreateChannelMessage.class);
         String userId = TokensStorage.getTokenStorage().getUserId(createChannelMessage.getToken());
         try {
-            Socket socket = SocketsStorage.getSocketsStorage().getSocket(userId);
+            WebSocket socket = WebSocketsStorage.getWebSocketsStorage().getSocket(userId);
             String sqlString = "insert into channels (channel) values ('" + createChannelMessage.getChannelName() + "');";
             dbRequest.dbRequest(sqlString);
 

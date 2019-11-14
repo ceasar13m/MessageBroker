@@ -4,6 +4,7 @@ import com.ainur.model.messages.*;
 import com.ainur.util.HttpStatus;
 import com.ainur.util.MessageType;
 import com.google.gson.Gson;
+import org.java_websocket.WebSocket;
 
 import java.net.Socket;
 import java.sql.*;
@@ -11,27 +12,27 @@ import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 
 public class AuthWorker extends Thread {
-    private SocketsStorage socketsStorage;
+    private WebSocketsStorage webSocketsStorage;
     private BlockingQueue<AuthMessage> authMessages;
     private Gson gson;
     private UUID uuid;
     DBRequest dbRequest;
 
 
-    public AuthWorker(SocketsStorage socketsStorage, BlockingQueue<AuthMessage> authMessages) {
-        this.socketsStorage = socketsStorage;
+    public AuthWorker(WebSocketsStorage webSocketsStorage, BlockingQueue<AuthMessage> authMessages) {
+        this.webSocketsStorage = webSocketsStorage;
         this.authMessages = authMessages;
         gson = new Gson();
         dbRequest = new DBRequest();
     }
 
-    public void signIn(Message message, Socket socket) {
+    public void signIn(Message message, WebSocket socket) {
         SignInMessage signInMessage = gson.fromJson(message.getData(), SignInMessage.class);
         if (isLoginPasswordValid(signInMessage.getUsername(), signInMessage.getPassword())) {
             uuid = UUID.randomUUID();
             new ResponseManager(HttpStatus.OK, socket, uuid.toString());
             TokensStorage.getTokenStorage().addToken(uuid.toString(), getUserId(signInMessage.getUsername()));
-            SocketsStorage.getSocketsStorage().addSocket(getUserId(signInMessage.getUsername()), socket);
+            WebSocketsStorage.getWebSocketsStorage().addSocket(getUserId(signInMessage.getUsername()), socket);
         } else {
             new ResponseManager(HttpStatus.UNAUTHORIZED, socket);
         }
@@ -40,7 +41,7 @@ public class AuthWorker extends Thread {
     }
 
 
-    public void signUp(Message message, Socket socket) {
+    public void signUp(Message message, WebSocket socket) {
         SignUpMessage signUpMessage = gson.fromJson(message.getData(), SignUpMessage.class);
             if (!isUserExists(signUpMessage.getUsername())) {
                 uuid = UUID.randomUUID();
@@ -56,7 +57,7 @@ public class AuthWorker extends Thread {
     }
 
 
-    public void disconnect(Message message, Socket socket) {
+    public void disconnect(Message message, WebSocket socket) {
         DisconnectMessage disconnectMessage = gson.fromJson(message.getData(), DisconnectMessage.class);
         TokensStorage.getTokenStorage().removeToken(disconnectMessage.getToken());
         new ResponseManager(HttpStatus.OK, socket);

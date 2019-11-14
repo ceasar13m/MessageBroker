@@ -1,6 +1,7 @@
 package com.ainur;
 
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.nio.ByteBuffer;
 
 import org.java_websocket.WebSocket;
@@ -9,14 +10,20 @@ import org.java_websocket.server.WebSocketServer;
 
 public class TestServer extends WebSocketServer {
 
+    private MessageProcessor processor;
     public TestServer(InetSocketAddress address) {
         super(address);
+        processor = new MessageProcessor(WebSocketsStorage.getWebSocketsStorage());
+        processor.startWorkers();
+        TokensStorage.getTokenStorage();
     }
+
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         conn.send("Welcome to the server!"); //This method sends a message to the new client
         System.out.println("new connection to " + conn.getRemoteSocketAddress());
+
     }
 
     @Override
@@ -27,11 +34,8 @@ public class TestServer extends WebSocketServer {
     @Override
     public void onMessage(WebSocket conn, String message) {
         System.out.println("received message from "	+ conn.getRemoteSocketAddress() + ": " + message);
-    }
-
-    @Override
-    public void onMessage( WebSocket conn, ByteBuffer message ) {
-        System.out.println("received ByteBuffer from "	+ conn.getRemoteSocketAddress());
+        ClientThread clientThread = new ClientThread(processor, conn, message);
+        clientThread.run();
     }
 
     @Override
@@ -39,16 +43,8 @@ public class TestServer extends WebSocketServer {
         System.err.println("an error occurred on connection " + conn.getRemoteSocketAddress()  + ":" + ex);
     }
 
-    public void onStart() {
-        System.out.println("server started successfully");
-    }
 
 
-    public static void main(String[] args) {
-        String host = "localhost";
-        int port = 8887;
 
-        WebSocketServer server = new TestServer(new InetSocketAddress(host, port));
-        server.run();
-    }
+
 }

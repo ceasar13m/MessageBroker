@@ -9,17 +9,28 @@
 
 <body>
 <script>
-    const webSocket = new WebSocket('ws://localhost:8887');
+    const webSocket = new WebSocket('ws://localhost:8080');
+
+    let data = {
+        username: "keram",
+        password: "111",
+    };
+
+
+    let message = {
+        command: 0,
+        data: JSON.stringify(data),
+    };
+
+    let jsonString = JSON.stringify(message);
 
     webSocket.onopen = event => {
         alert('onopen');
-        webSocket.send("Hello Web Socket!");
+        webSocket.send(jsonString);
     };
-
     webSocket.onmessage = event => {
         alert('onmessage, ' + event.data);
     };
-
     webSocket.onclose = event => {
         alert('onclose');
     };
