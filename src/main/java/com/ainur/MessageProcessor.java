@@ -57,20 +57,26 @@ public class MessageProcessor {
                 PublishMessage publishMessage = gson.fromJson(message.getData(), PublishMessage.class);
 
                 if (publishMessage.getToken() != null && TokensStorage.getTokenStorage().isTokenValid(publishMessage.getToken())) {
+                    WebSocketsStorage.getWebSocketsStorage().addSocket(
+                            TokensStorage.getTokenStorage().getUserId(publishMessage.getToken()),
+                            socket);
                     messages.add(message);
                 } else {
-                        StatusResponse statusResponse = new StatusResponse();
-                        statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
+                    StatusResponse statusResponse = new StatusResponse();
+                    statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
                 }
                 break;
             }
             case MessageType.SUBSCRIBE: {
                 SubscribeMessage subscribeMessage = gson.fromJson(message.getData(), SubscribeMessage.class);
                 if (subscribeMessage.getToken() != null && TokensStorage.getTokenStorage().isTokenValid(subscribeMessage.getToken())) {
+                    WebSocketsStorage.getWebSocketsStorage().addSocket(
+                            TokensStorage.getTokenStorage().getUserId(subscribeMessage.getToken()),
+                            socket);
                     messages.add(message);
                 } else {
-                        StatusResponse statusResponse = new StatusResponse();
-                        statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
+                    StatusResponse statusResponse = new StatusResponse();
+                    statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
 
                 }
                 break;
@@ -79,10 +85,13 @@ public class MessageProcessor {
                 AuthMessage authMessage = new AuthMessage(message, socket);
                 DisconnectMessage disconnectMessage = gson.fromJson(message.getData(), DisconnectMessage.class);
                 if (disconnectMessage.getToken() != null && TokensStorage.getTokenStorage().isTokenValid(disconnectMessage.getToken())) {
+                    WebSocketsStorage.getWebSocketsStorage().addSocket(
+                            TokensStorage.getTokenStorage().getUserId(disconnectMessage.getToken()),
+                            socket);
                     authMessages.add(authMessage);
                 } else {
-                        StatusResponse statusResponse = new StatusResponse();
-                        statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
+                    StatusResponse statusResponse = new StatusResponse();
+                    statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
 
                 }
                 break;
@@ -90,10 +99,13 @@ public class MessageProcessor {
             case MessageType.CREATE_CHANNEL: {
                 CreateChannelMessage createChannelMessage = gson.fromJson(message.getData(), CreateChannelMessage.class);
                 if (createChannelMessage.getToken() != null && TokensStorage.getTokenStorage().isTokenValid(createChannelMessage.getToken())) {
+                    WebSocketsStorage.getWebSocketsStorage().addSocket(
+                            TokensStorage.getTokenStorage().getUserId(createChannelMessage.getToken()),
+                            socket);
                     messages.add(message);
                 } else {
-                        StatusResponse statusResponse = new StatusResponse();
-                        statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
+                    StatusResponse statusResponse = new StatusResponse();
+                    statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
 
                 }
                 break;

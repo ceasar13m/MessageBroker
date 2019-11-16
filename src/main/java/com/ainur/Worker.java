@@ -63,7 +63,7 @@ public class Worker extends Thread {
 
     private void publish(Message message) {
         PublishMessage publishMessage = gson.fromJson(message.getData(), PublishMessage.class);
-        Statement statement = null;
+        MessageBroker broker = new MessageBroker(publishMessage);
         String userId = TokensStorage.getTokenStorage().getUserId(publishMessage.getToken());
         try {
             WebSocket socket = WebSocketsStorage.getWebSocketsStorage().getSocket(userId);
@@ -112,6 +112,7 @@ public class Worker extends Thread {
     }
 
     private void createChannel(Message message) {
+        System.out.println("helloWorld");
         CreateChannelMessage createChannelMessage = gson.fromJson(message.getData(), CreateChannelMessage.class);
         String userId = TokensStorage.getTokenStorage().getUserId(createChannelMessage.getToken());
         try {

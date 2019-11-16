@@ -1,12 +1,9 @@
 package com.ainur;
 
-import com.google.gson.Gson;
 import org.java_websocket.server.WebSocketServer;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
 
 public class ConnectionReceiver {
     private MessageProcessor processor;
@@ -30,7 +27,7 @@ public class ConnectionReceiver {
 
 
 
-                WebSocketServer server = new TestServer(new InetSocketAddress(host, port));
+                WebSocketServer server = new Server(new InetSocketAddress(host, port));
                 server.run();
         System.out.println();
 //

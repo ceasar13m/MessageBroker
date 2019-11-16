@@ -35,4 +35,8 @@ public class WebSocketsStorage {
 
     }
 
+    public void removeSocket(String id) {
+        sockets.remove(id);
+    }
+
 }

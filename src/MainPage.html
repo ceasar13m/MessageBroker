@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+</head>
+<body>
+<form name="search">
+    <input type="text" name="type" placeholder="type" id="type"></input>
+    <input type="text" name="username" placeholder="username" id="username"></input>
+    <input type="text" name="password" placeholder="password" id="password"></input>
+    <input type="text" name="channel" placeholder="channel" id="channel"></input>
+    <input type="text" name="message" placeholder="message" id="message"></input>
+
+    <input type="button" name="print" value="Отправить"/>
+</form>
+<div id="printBlock"></div>
+<script>
+    const webSocket = new WebSocket('ws://localhost:8080');
+    let jsonString;
+    let TOKEN;
+    const SIGN_UP = 0;
+    const SIGN_IN = 1;
+    const PUBLISH = 2;
+    const SUBSCRIBE = 3;
+    const DISCONNECT = 4;
+    const CREATE_CHANNEL = 5;
+
+    webSocket.onopen = event => {
+
+    };
+
+    webSocket.onmessage = event => {
+        var printBlock = document.getElementById("printBlock");
+        var pElement = document.createElement("p");
+        let jsonSTR = event.data;
+        alert(jsonSTR);
+        let mess = JSON.parse(jsonSTR);
+        if (typeof mess.token === 'undefined')
+            TOKEN = null;
+        else
+            TOKEN = mess.token;
+        pElement.textContent = event.data;
+        printBlock.appendChild(pElement);
+
+
+    };
+
+    webSocket.onclose = event => {
+        alert('onclose');
+    };
+
+
+    function printForm(e) {
+
+        // получаем значение поля key
+        var typeBox = document.getElementById("type");
+        var type = typeBox.value;
+        var nameBox = document.getElementById("username");
+        var name = nameBox.value;
+        var passwordBox = document.getElementById("password");
+        var password = passwordBox.value;
+        var channelBox = document.getElementById("channel");
+        var channel = channelBox.value;
+        var messageBox = document.getElementById("message");
+        var message = messageBox.value;
+
+        if (type == SIGN_UP) {
+            let data = {
+                username: name,
+                password: password,
+            };
+            let message = {
+                command: type,
+                data: JSON.stringify(data),
+            };
+            jsonString = JSON.stringify(message);
+            webSocket.send(jsonString);
+        } else if (type == SIGN_IN) {
+            let data = {
+                username: name,
+                password: password,
+            };
+            let message = {
+                command: type,
+                data: JSON.stringify(data),
+            };
+            jsonString = JSON.stringify(message);
+            webSocket.send(jsonString);
+
+        } else if (type == PUBLISH) {
+            let data = {
+                token: TOKEN,
+                channelName: channel,
+                message: message,
+            };
+            let pMessage = {
+                command: type,
+                data: JSON.stringify(data),
+            };
+            jsonString = JSON.stringify(pMessage);
+            webSocket.send(jsonString);
+
+        } else if (type == SUBSCRIBE) {
+            let data = {
+                token: TOKEN,
+                channelName: channel,
+            };
+            let message = {
+                command: type,
+                data: JSON.stringify(data),
+            };
+            jsonString = JSON.stringify(message);
+            webSocket.send(jsonString);
+
+        } else if (type == DISCONNECT) {
+            let data = {
+                token: TOKEN,
+            };
+            let message = {
+                command: type,
+                data: JSON.stringify(data),
+            };
+            jsonString = JSON.stringify(message);
+            webSocket.send(jsonString);
+
+        } else if (type == CREATE_CHANNEL) {
+            let data = {
+                token: TOKEN,
+                channelName: channel,
+            };
+            let message = {
+                command: type,
+                data: JSON.stringify(data),
+            };
+            jsonString = JSON.stringify(message);
+            webSocket.send(jsonString);
+
+        }
+
+
+    }
+
+    var printButton = document.search.print;
+    printButton.addEventListener("click", printForm);
+</script>
+</body>
+</html>

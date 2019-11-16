@@ -12,13 +12,12 @@
     const webSocket = new WebSocket('ws://localhost:8080');
 
     let data = {
-        username: "keram",
-        password: "111",
+        token: "da5bc2b0-c8af-4ad5-aafa-3f77c5b80fd7",
+        channelName: "hello",
     };
 
-
     let message = {
-        command: 0,
+        command: 5,
         data: JSON.stringify(data),
     };
 

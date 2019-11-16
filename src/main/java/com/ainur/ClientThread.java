@@ -1,9 +1,10 @@
 package com.ainur;
+
 import com.ainur.model.messages.Message;
 import com.google.gson.Gson;
 import org.java_websocket.WebSocket;
 
-public class ClientThread{
+public class ClientThread {
 
     private WebSocket socket;
     private MessageProcessor processor;
@@ -18,7 +19,7 @@ public class ClientThread{
     }
 
     public void run() {
-                Message message = gson.fromJson(jsonMessage, Message.class);
-                processor.addMessage(message, socket);
+        Message message = gson.fromJson(jsonMessage, Message.class);
+        processor.addMessage(message, socket);
     }
 }

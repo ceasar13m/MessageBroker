@@ -5,6 +5,7 @@ import com.ainur.util.HttpStatus;
 import com.ainur.util.MessageType;
 import com.google.gson.Gson;
 import org.java_websocket.WebSocket;
+import org.java_websocket.server.WebSocketServer;
 
 import java.net.Socket;
 import java.sql.*;
@@ -58,11 +59,15 @@ public class AuthWorker extends Thread {
 
 
     public void disconnect(Message message, WebSocket socket) {
+
         DisconnectMessage disconnectMessage = gson.fromJson(message.getData(), DisconnectMessage.class);
+        String userId = TokensStorage.getTokenStorage().getUserId(disconnectMessage.getToken());
+        WebSocketsStorage.getWebSocketsStorage().removeSocket(userId);
         TokensStorage.getTokenStorage().removeToken(disconnectMessage.getToken());
         new ResponseManager(HttpStatus.OK, socket);
 
     }
+
 
     public boolean isUserExists(String login) {
         try {
