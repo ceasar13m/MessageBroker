@@ -2,7 +2,7 @@ import com.ainur.ConnectionReceiver;
 import org.junit.Test;
 
 
-public class Server {
+public class SocketServer {
 
     @Test
     public  void startServer() {

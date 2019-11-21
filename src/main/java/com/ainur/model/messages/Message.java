@@ -1,8 +1,6 @@
 package com.ainur.model.messages;
 
 
-import org.springframework.stereotype.Component;
-
 public class Message {
     private int command;
     private String data;

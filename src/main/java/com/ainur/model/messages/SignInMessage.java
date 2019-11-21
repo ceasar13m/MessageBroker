@@ -1,12 +1,9 @@
 package com.ainur.model.messages;
 
 
-import org.springframework.stereotype.Component;
-
 public class SignInMessage {
     private String username;
     private String password;
-    private String token;
 
     public String getUsername() {
         return username;
@@ -24,11 +21,4 @@ public class SignInMessage {
         this.password = password;
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
 }

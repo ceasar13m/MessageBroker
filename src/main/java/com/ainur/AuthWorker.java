@@ -44,15 +44,15 @@ public class AuthWorker extends Thread {
 
     public void signUp(Message message, WebSocket socket) {
         SignUpMessage signUpMessage = gson.fromJson(message.getData(), SignUpMessage.class);
-            if (!isUserExists(signUpMessage.getUsername())) {
-                uuid = UUID.randomUUID();
-                String userInsertString = "insert into users (username, password) values ('" + signUpMessage.getUsername() + "','" + signUpMessage.getPassword() + "');";
-                dbRequest.dbRequest(userInsertString);
-                new ResponseManager(HttpStatus.OK, socket, uuid.toString());
-                TokensStorage.getTokenStorage().addToken(uuid.toString(), signUpMessage.getUsername());
-            } else {
-                new ResponseManager(HttpStatus.FORBIDDEN, socket);
-            }
+        if (!isUserExists(signUpMessage.getUsername())) {
+            uuid = UUID.randomUUID();
+            String userInsertString = "insert into users (username, password) values ('" + signUpMessage.getUsername() + "','" + signUpMessage.getPassword() + "');";
+            dbRequest.dbRequest(userInsertString);
+            new ResponseManager(HttpStatus.OK, socket, uuid.toString());
+            TokensStorage.getTokenStorage().addToken(uuid.toString(), signUpMessage.getUsername());
+        } else {
+            new ResponseManager(HttpStatus.FORBIDDEN, socket);
+        }
 
 
     }

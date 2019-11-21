@@ -8,10 +8,10 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
-public class Server extends WebSocketServer {
+public class SocketServer extends org.java_websocket.server.WebSocketServer {
 
     private MessageProcessor processor;
-    public Server(InetSocketAddress address) {
+    public SocketServer(InetSocketAddress address) {
         super(address);
         processor = new MessageProcessor(WebSocketsStorage.getWebSocketsStorage());
         processor.startWorkers();

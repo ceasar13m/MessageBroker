@@ -33,7 +33,6 @@
         var printBlock = document.getElementById("printBlock");
         var pElement = document.createElement("p");
         let jsonSTR = event.data;
-        alert(jsonSTR);
         let mess = JSON.parse(jsonSTR);
         if (typeof mess.token === 'undefined')
             TOKEN = null;

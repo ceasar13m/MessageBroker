@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="signUp.css" rel="stylesheet">
+
+</head>
+<body>
+
+
+<div class="form">
+
+    <ul class="tab-group">
+        <li class="tab active"><a href="#" id="signUpMenuButton">Sign Up</a></li>
+        <li class="tab"><a href="#" id="signInMenuButton">Log In</a></li>
+        <li class="tab"><a href="#" id="channelsMenuButton">Channels</a></li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="signUp" style="display: none">
+        <h1>Sign Up for Free</h1>
+
+        <form>
+
+        <div class="top-row">
+        <div class="field-wrap">
+        <label>
+        Username<span class="req">*</span>
+        </label>
+        <input type="text" required autocomplete="off" id="usernameSignUp"/>
+        </div>
+        </div>
+
+
+        <div class="field-wrap">
+        <label>
+        Set A Password<span class="req">*</span>
+        </label>
+        <input type="password" required autocomplete="off" id="passwordSignUp"/>
+        </div>
+
+        <button type="submit" class="button button-block " id="getStart"/>
+        Get Started</button>
+
+        </form>
+
+        </div>
+
+        <div id="signIn">
+            <h1>Welcome Back!</h1>
+
+            <!--<form >-->
+
+            <div class="field-wrap">
+                <input type="text" id="usernameSignIn"/>
+            </div>
+
+
+            <div class="field-wrap">
+                <input type="password" id="passwordSignIn"/>
+            </div>
+
+
+            <button class="button button-block" id="loginStart"/>
+            Log In</button>
+
+        </div>
+
+    </div><!-- tab-content -->
+
+</div> <!-- /form -->
+
+
+<div class="chat" id="chat">
+    <div id="messages" style="overflow: auto; width:300px; height:200px;">
+        <output id="messageOutput" autofocus/>
+    </div>
+
+
+    <div id="messageForm">
+        <input type="text" id="userMessage" size="50%"/>
+    </div>
+</div>
+
+
+<script src="scripts/socket.js"></script>
+<script src="scripts/signIn.js"></script>
+<script src="scripts/signUp.js"></script>
+<script src="scripts/subscribe.js"></script>
+<script src="scripts/publish.js"></script>
+<script src="scripts/disconnect.js"></script>
+<script src="scripts/createChannel.js"></script>
+<script src="scripts/channels.js"></script>
+
+
+</body>
+</html>
