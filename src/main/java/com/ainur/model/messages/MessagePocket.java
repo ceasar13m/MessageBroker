@@ -1,6 +1,6 @@
 package com.ainur.model.messages;
 
-public class Ildar {
+public class MessagePocket {
     private String Sender;
     private String channelName;
     private String message;

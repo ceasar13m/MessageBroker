@@ -2,7 +2,7 @@ package com.ainur.model.responses;
 
 import org.springframework.stereotype.Component;
 
-@Component("statusResponse")
+@Component
 public class StatusResponse {
 
     private int statusCode;
@@ -16,5 +16,11 @@ public class StatusResponse {
         this.statusCode = statusCode;
     }
 
+    public int getStatusCode() {
+        return statusCode;
+    }
 
+    public String getToken() {
+        return token;
+    }
 }

@@ -1,9 +1,8 @@
 package com.ainur.servlets;
 
 import com.ainur.ResponseManager;
-import com.ainur.SQLWorker;
+import com.ainur.repository.MySQLRepository;
 import com.ainur.model.Channels;
-import com.ainur.model.messages.Message;
 import com.ainur.util.ErrorMessage;
 import com.ainur.util.HttpStatus;
 import com.google.gson.Gson;
@@ -15,20 +14,20 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class ChannelServlet extends HttpServlet {
-    SQLWorker sqlWorker;
+    MySQLRepository mySqlRepository;
     Gson gson = new Gson();
 
     public ChannelServlet() {
-        sqlWorker = new SQLWorker();
+        mySqlRepository = new MySQLRepository();
     }
 
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        
+
         try {
             Channels channels = new Channels();
-            channels.setArrayList(sqlWorker.getAllChannels());
+            channels.setArrayList(mySqlRepository.getAllChannels());
             String jsonString = gson.toJson(channels, Channels.class);
             new ResponseManager(HttpStatus.OK, resp, jsonString);
         } catch (Exception e) {
