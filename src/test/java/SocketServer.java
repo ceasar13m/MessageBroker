@@ -1,4 +1,4 @@
-//import com.ainur.ConnectionReceiver;
+//import com.ainur.WebsocketServer;
 //import org.junit.Test;
 //
 //
@@ -6,7 +6,7 @@
 //
 //    @Test
 //    public  void startServer() {
-//        ConnectionReceiver server = new ConnectionReceiver();
+//        WebsocketServer server = new WebsocketServer();
 //        server.start();
 //    }
 //}

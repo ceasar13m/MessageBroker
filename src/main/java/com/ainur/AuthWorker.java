@@ -34,7 +34,7 @@ public class AuthWorker extends Thread {
         String userId = TokensStorage.getTokenStorage().getUserId(disconnectMessage.getToken());
         WebSocketsStorage.getWebSocketsStorage().removeSocket(userId);
         TokensStorage.getTokenStorage().removeToken(disconnectMessage.getToken());
-        new ResponseManager(HttpStatus.OK, socket);
+//        new ResponseManager(HttpStatus.OK, socket);
 
     }
 

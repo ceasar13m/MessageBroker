@@ -1,26 +1,9 @@
-package com.ainur.model;
+package com.ainur.model.messages;
 
-public class MySQLCredentials {
-    private String host;
-    private int port;
+
+public class SignInMessage {
     private String username;
     private String password;
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
 
     public String getUsername() {
         return username;
@@ -37,4 +20,5 @@ public class MySQLCredentials {
     public void setPassword(String password) {
         this.password = password;
     }
+
 }

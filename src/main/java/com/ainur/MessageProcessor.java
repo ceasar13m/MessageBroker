@@ -1,11 +1,12 @@
 package com.ainur;
 
 import com.ainur.model.messages.*;
-import com.ainur.model.responses.StatusResponse;
+import com.ainur.model.responses.AuthResponse;
 import com.ainur.util.HttpStatus;
 import com.ainur.util.MessageType;
 import com.google.gson.Gson;
 import org.java_websocket.WebSocket;
+import org.springframework.stereotype.Component;
 
 
 import java.util.ArrayList;
@@ -16,6 +17,8 @@ import java.util.concurrent.BlockingQueue;
  * blockingQueue <- message
  * 10 обработчиков обрабаотывают сообщения
  */
+
+@Component
 public class MessageProcessor {
 
     private BlockingQueue<Message> messages;
@@ -43,9 +46,9 @@ public class MessageProcessor {
                             TokensStorage.getTokenStorage().getUserId(publishMessage.getToken()),
                             socket);
                     messages.add(message);
+                    socket.send("OK");
                 } else {
-                    StatusResponse statusResponse = new StatusResponse();
-                    statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
+                    socket.send("NO");
                 }
                 break;
             }
@@ -56,9 +59,9 @@ public class MessageProcessor {
                             TokensStorage.getTokenStorage().getUserId(subscribeMessage.getToken()),
                             socket);
                     messages.add(message);
+                    socket.send("OK");
                 } else {
-                    StatusResponse statusResponse = new StatusResponse();
-                    statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
+                    socket.send("NO");
 
                 }
                 break;
@@ -70,9 +73,9 @@ public class MessageProcessor {
                             TokensStorage.getTokenStorage().getUserId(createChannelMessage.getToken()),
                             socket);
                     messages.add(message);
+                    socket.send("OK");
                 } else {
-                    StatusResponse statusResponse = new StatusResponse();
-                    statusResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
+                    socket.send("NO");
 
                 }
                 break;

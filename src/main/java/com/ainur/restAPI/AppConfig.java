@@ -1,4 +1,4 @@
-package com.ainur;
+package com.ainur.restAPI;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

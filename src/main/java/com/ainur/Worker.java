@@ -69,6 +69,7 @@ public class Worker extends Thread {
 
 
     private void publish(Message message) {
+        System.out.println("Publish");
         PublishMessage publishMessage = gson.fromJson(message.getData(), PublishMessage.class);
         MessageBroker broker = new MessageBroker(publishMessage);
         String userId = TokensStorage.getTokenStorage().getUserId(publishMessage.getToken());
@@ -88,9 +89,9 @@ public class Worker extends Thread {
                         + publishMessage.getDateString() + "','"
                         + publishMessage.getMessage() + "');";
                 preparedStatement.executeQuery(sql);
-                new ResponseManager(HttpStatus.OK, socket);
+//                new ResponseManager(HttpStatus.OK, socket);
             } else {
-                new ResponseManager(HttpStatus.FORBIDDEN, socket);
+//                new ResponseManager(HttpStatus.FORBIDDEN, socket);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -112,9 +113,9 @@ public class Worker extends Thread {
                         + TokensStorage.getTokenStorage().getUserId(subscribeMessage.getToken())
                         + "','" + channelId + "');";
                 preparedStatement.executeQuery(sql);
-                new ResponseManager(HttpStatus.OK, socket);
+//                new ResponseManager(HttpStatus.OK, socket);
             } else {
-                new ResponseManager(HttpStatus.FORBIDDEN, socket);
+//                new ResponseManager(HttpStatus.FORBIDDEN, socket);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -135,9 +136,9 @@ public class Worker extends Thread {
             preparedStatement = connection.prepareStatement(sql);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                new ResponseManager(HttpStatus.OK, socket);
+//                new ResponseManager(HttpStatus.OK, socket);
             } else {
-                new ResponseManager(HttpStatus.FORBIDDEN, socket);
+//                new ResponseManager(HttpStatus.FORBIDDEN, socket);
             }
         }  catch (SQLException e) {
             e.printStackTrace();

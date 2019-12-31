@@ -1,18 +1,17 @@
-package com.ainur.controllers;
+package com.ainur.restAPI;
 
-import com.ainur.ResponseManager;
 import com.ainur.TokensStorage;
-import com.ainur.model.messages.SignInRequestJson;
+import com.ainur.model.messages.SignInMessage;
 import com.ainur.model.messages.SignUpMessage;
-import com.ainur.model.responses.StatusResponse;
+import com.ainur.model.responses.AuthResponse;
 import com.ainur.repository.MySQLRepository;
-import com.ainur.util.HttpStatus;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
@@ -24,7 +23,7 @@ import java.util.UUID;
 
 public class AppRESTController {
     @Autowired
-    StatusResponse statusResponse;
+    AuthResponse authResponse;
     @Autowired
     MySQLRepository mySQLRepository;
 
@@ -36,24 +35,26 @@ public class AppRESTController {
     UUID uuid;
 
     @RequestMapping("/signIn")
-    @GetMapping(produces = "application/json")
+    @PostMapping(produces = "application/json")
     public @ResponseBody
-    void signIn(HttpServletResponse response, HttpServletRequest request) {
-        SignInRequestJson signInRequestJson;
+    ResponseEntity<AuthResponse> signIn(HttpServletRequest request) {
+        SignInMessage signInMessage;
         try {
-            signInRequestJson = gson.fromJson(request.getReader(), SignInRequestJson.class);
-            if (mySQLRepository.isLoginPasswordValid(signInRequestJson.getUsername(), signInRequestJson.getPassword())) {
+            signInMessage = gson.fromJson(request.getReader(), SignInMessage.class);
+            if (mySQLRepository.isLoginPasswordValid(signInMessage.getUsername(), signInMessage.getPassword())) {
                 uuid = UUID.randomUUID();
-                new ResponseManager(HttpStatus.OK, response, uuid.toString());
-                TokensStorage.getTokenStorage().addToken(uuid.toString(), mySQLRepository.getUserId(signInRequestJson.getUsername()));
+                TokensStorage.getTokenStorage().addToken(uuid.toString(), mySQLRepository.getUserId(signInMessage.getUsername()));
+                AuthResponse authResponse = new AuthResponse();
+                authResponse.setToken(uuid.toString());
+                return new ResponseEntity<>(authResponse, HttpStatus.OK);
+
             } else {
-                new ResponseManager(HttpStatus.UNAUTHORIZED, response);
+                return new ResponseEntity(HttpStatus.UNAUTHORIZED);
             }
         } catch (IOException e) {
             e.printStackTrace();
-            new ResponseManager(HttpStatus.UNAUTHORIZED, response);
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
         }
-
     }
 
 
@@ -61,24 +62,31 @@ public class AppRESTController {
     @RequestMapping("/signUp")
     @PostMapping(produces = "application/json")
     public @ResponseBody
-    void signUp(HttpServletResponse response, HttpServletRequest request) {
+    ResponseEntity<AuthResponse> signUp(HttpServletRequest request) {
 
-        try (Connection connection = dataSource.getConnection()){
+        try (Connection connection = dataSource.getConnection()) {
+
             SignUpMessage signUpMessage = gson.fromJson(request.getReader(), SignUpMessage.class);
             if (!mySQLRepository.isUserExists(signUpMessage.getUsername())) {
+                System.out.println("good");
                 uuid = UUID.randomUUID();
                 String sql = "insert into users (username, password) values ('" + signUpMessage.getUsername() + "','" + signUpMessage.getPassword() + "');";
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
                 preparedStatement.executeUpdate();
-                new ResponseManager(HttpStatus.OK, response, uuid.toString());
                 TokensStorage.getTokenStorage().addToken(uuid.toString(), signUpMessage.getUsername());
+                AuthResponse authResponse = new AuthResponse();
+                authResponse.setToken(uuid.toString());
+                return new ResponseEntity<>(authResponse, org.springframework.http.HttpStatus.OK);
             } else {
-                new ResponseManager(HttpStatus.UNAUTHORIZED, response);
+                System.out.println("bad");
+                return new ResponseEntity(HttpStatus.UNAUTHORIZED);
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
         } catch (SQLException e) {
             e.printStackTrace();
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
         }
 
 

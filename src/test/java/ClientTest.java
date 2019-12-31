@@ -1,7 +1,7 @@
 //
 //import com.ainur.model.messages.DisconnectMessage;
 //import com.ainur.model.messages.Message;
-//import com.ainur.model.messages.SignInRequestJson;
+//import com.ainur.model.messages.SignInMessage;
 //import com.ainur.model.messages.SubscribeMessage;
 //import com.ainur.model.responses.StatusResponse;
 //import com.ainur.util.MessageType;
@@ -43,12 +43,12 @@
 //
 //
 //
-//            SignInRequestJson signInMessage = new SignInRequestJson();
+//            SignInMessage signInMessage = new SignInMessage();
 //            signInMessage.setUsername("rafil");
 //            signInMessage.setPassword("1112");
 //
 //            message.setCommand(MessageType.SIGN_IN);
-//            message.setData(gson.toJson(signInMessage, SignInRequestJson.class));
+//            message.setData(gson.toJson(signInMessage, SignInMessage.class));
 //
 //            jsonString = gson.toJson(message, Message.class);
 //            writer.write(jsonString + "\n");

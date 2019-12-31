@@ -1,25 +1,34 @@
 package com.ainur;
 
-import com.ainur.servlets.ChannelServlet;
+import com.ainur.model.messages.Message;
+import com.google.gson.Gson;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.InetSocketAddress;
 
 
-public class ConnectionReceiver {
-    private MessageProcessor processor;
-    private String host = "localhost";
-    private int port = 8080;
+public class WebsocketServer {
+
 
     public static void main(String[] args) {
-        ConnectionReceiver server = new ConnectionReceiver();
+        WebsocketServer server = new WebsocketServer();
         server.start();
     }
 
 
-    public ConnectionReceiver() {
+
+
+
+    private MessageProcessor processor;
+    private String host = "localhost";
+    private int port = 8090;
+    @Autowired
+    private Gson gson;
+
+    public WebsocketServer() {
         processor = new MessageProcessor();
         processor.startWorkers();
         TokensStorage.getTokenStorage();
@@ -27,6 +36,7 @@ public class ConnectionReceiver {
 
     public void start() {
         try {
+
             WebSocketServer webSocketServer = new WebSocketServer(new InetSocketAddress(host, port)) {
                 @Override
                 public void onOpen(WebSocket conn, ClientHandshake handshake) {
@@ -39,8 +49,10 @@ public class ConnectionReceiver {
                 }
 
                 @Override
-                public void onMessage(WebSocket conn, String message) {
-
+                public void onMessage(WebSocket conn, String jsonMessage) {
+                    System.out.println("received message from "	+ conn.getRemoteSocketAddress() + ": " + jsonMessage);
+                    Message message = gson.fromJson(jsonMessage, Message.class);
+                    processor.addMessage(message, conn);
                 }
 
                 @Override

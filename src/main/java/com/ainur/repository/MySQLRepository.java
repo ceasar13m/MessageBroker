@@ -12,9 +12,9 @@ import java.util.ArrayList;
 @Repository
 public class MySQLRepository {
     private static final String CREATE_DATABASE =
-            "create database IF NOT EXISTS broker;";
+            "create database IF NOT EXISTS brokerdb;";
     private static final String USING_DATABASE =
-            "use broker;";
+            "use brokerdb;";
     private static final String CREATE_USERS_TABLE =
             "CREATE TABLE if not exists users " +
                     "(id int AUTO_INCREMENT not null PRIMARY KEY, " +
@@ -85,7 +85,7 @@ public class MySQLRepository {
             Statement statement;
 
             statement = connection.createStatement();
-            statement.executeUpdate("use broker");
+            statement.executeUpdate("use brokerdb");
             ResultSet resultSet = statement.executeQuery(sql);
 
             if (resultSet.next()) {
