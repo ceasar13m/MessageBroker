@@ -3,7 +3,7 @@ package com.ainur.restAPI;
 import com.ainur.TokensStorage;
 import com.ainur.model.messages.SignInMessage;
 import com.ainur.model.messages.SignUpMessage;
-import com.ainur.model.responses.AuthResponse;
+import com.ainur.model.responses.TokenResponse;
 import com.ainur.repository.MySQLRepository;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
@@ -23,7 +24,7 @@ import java.util.UUID;
 
 public class AppRESTController {
     @Autowired
-    AuthResponse authResponse;
+    TokenResponse tokenResponse;
     @Autowired
     MySQLRepository mySQLRepository;
 
@@ -37,16 +38,16 @@ public class AppRESTController {
     @RequestMapping("/signIn")
     @PostMapping(produces = "application/json")
     public @ResponseBody
-    ResponseEntity<AuthResponse> signIn(HttpServletRequest request) {
+    ResponseEntity<TokenResponse> signIn(HttpServletRequest request) {
         SignInMessage signInMessage;
         try {
             signInMessage = gson.fromJson(request.getReader(), SignInMessage.class);
             if (mySQLRepository.isLoginPasswordValid(signInMessage.getUsername(), signInMessage.getPassword())) {
                 uuid = UUID.randomUUID();
                 TokensStorage.getTokenStorage().addToken(uuid.toString(), mySQLRepository.getUserId(signInMessage.getUsername()));
-                AuthResponse authResponse = new AuthResponse();
-                authResponse.setToken(uuid.toString());
-                return new ResponseEntity<>(authResponse, HttpStatus.OK);
+                TokenResponse tokenResponse = new TokenResponse();
+                tokenResponse.setToken(uuid.toString());
+                return new ResponseEntity<>(tokenResponse, HttpStatus.OK);
 
             } else {
                 return new ResponseEntity(HttpStatus.UNAUTHORIZED);
@@ -60,25 +61,26 @@ public class AppRESTController {
 
 
     @RequestMapping("/signUp")
-    @PostMapping(produces = "application/json")
+//    @PostMapping(produces = "application/json")
     public @ResponseBody
-    ResponseEntity<AuthResponse> signUp(HttpServletRequest request) {
+    ResponseEntity<TokenResponse> signUp(HttpServletRequest request, HttpServletResponse response) {
 
         try (Connection connection = dataSource.getConnection()) {
 
+
             SignUpMessage signUpMessage = gson.fromJson(request.getReader(), SignUpMessage.class);
             if (!mySQLRepository.isUserExists(signUpMessage.getUsername())) {
-                System.out.println("good");
                 uuid = UUID.randomUUID();
                 String sql = "insert into users (username, password) values ('" + signUpMessage.getUsername() + "','" + signUpMessage.getPassword() + "');";
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
                 preparedStatement.executeUpdate();
                 TokensStorage.getTokenStorage().addToken(uuid.toString(), signUpMessage.getUsername());
-                AuthResponse authResponse = new AuthResponse();
-                authResponse.setToken(uuid.toString());
-                return new ResponseEntity<>(authResponse, org.springframework.http.HttpStatus.OK);
+                TokenResponse tokenResponse = new TokenResponse();
+                tokenResponse.setToken(uuid.toString());
+                response.setHeader("Access-Control-Allow-Origin", "*");
+
+                return new ResponseEntity<>(tokenResponse, org.springframework.http.HttpStatus.OK);
             } else {
-                System.out.println("bad");
                 return new ResponseEntity(HttpStatus.UNAUTHORIZED);
             }
         } catch (IOException e) {

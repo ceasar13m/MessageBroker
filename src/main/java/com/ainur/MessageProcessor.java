@@ -1,8 +1,6 @@
 package com.ainur;
 
 import com.ainur.model.messages.*;
-import com.ainur.model.responses.AuthResponse;
-import com.ainur.util.HttpStatus;
 import com.ainur.util.MessageType;
 import com.google.gson.Gson;
 import org.java_websocket.WebSocket;
@@ -12,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.logging.Logger;
 
 /**
  * blockingQueue <- message
@@ -25,26 +24,39 @@ public class MessageProcessor {
     private BlockingQueue<AuthMessage> authMessages;
     private ArrayList<Worker> workers = new ArrayList<>();
     private Gson gson;
+    private Logger log;
 
 
     public MessageProcessor() {
+
         TokensStorage.getTokenStorage();
         gson = new Gson();
         messages = new ArrayBlockingQueue<>(1024);
         authMessages = new ArrayBlockingQueue<>(1024);
+        this.log = Logger.getLogger(MessageProcessor.class.getName());
+        log.info("Конструктор процессора");
     }
 
 
     public void addMessage(Message message, WebSocket socket) {
 
+        log.info("Метод addMessage");
         switch (message.getCommand()) {
             case MessageType.PUBLISH: {
                 PublishMessage publishMessage = gson.fromJson(message.getData(), PublishMessage.class);
 
-                if (publishMessage.getToken() != null && TokensStorage.getTokenStorage().isTokenValid(publishMessage.getToken())) {
-                    WebSocketsStorage.getWebSocketsStorage().addSocket(
-                            TokensStorage.getTokenStorage().getUserId(publishMessage.getToken()),
-                            socket);
+
+                /**
+                 * НЕ ЗАБУДЬ ИЛИ ЗАМЕНИТЬ НА И!!!!!!!
+                 * ТОЛЬКО ВО ВРЕМЯ ТЕСТА!!!!!!!!!!!!!!!
+                 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                 *
+                 */
+                if (publishMessage.getToken() != null || TokensStorage.getTokenStorage().isTokenValid(publishMessage.getToken())) {
+//                    WebSocketsStorage.getWebSocketsStorage().addSocket(
+//                            TokensStorage.getTokenStorage().getUserId(publishMessage.getToken()),
+//                            socket);
                     messages.add(message);
                     socket.send("OK");
                 } else {
@@ -90,6 +102,7 @@ public class MessageProcessor {
             Worker worker = new Worker(messages);
             workers.add(worker);
             worker.start();
+            log.info("worker " + i + " запущен");
         }
     }
 

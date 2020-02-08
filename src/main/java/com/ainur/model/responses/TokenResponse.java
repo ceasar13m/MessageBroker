@@ -3,7 +3,7 @@ package com.ainur.model.responses;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AuthResponse {
+public class TokenResponse {
     private String token;
 
     public void setToken(String token) {

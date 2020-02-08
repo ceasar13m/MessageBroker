@@ -84,6 +84,7 @@
                 data: JSON.stringify(data),
             };
             jsonString = JSON.stringify(message);
+
             webSocket.send(jsonString);
 
         } else if (type == PUBLISH) {

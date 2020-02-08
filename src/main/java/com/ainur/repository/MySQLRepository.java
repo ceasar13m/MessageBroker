@@ -13,23 +13,33 @@ import java.util.ArrayList;
 public class MySQLRepository {
     private static final String CREATE_DATABASE =
             "create database IF NOT EXISTS brokerdb;";
+
+
     private static final String USING_DATABASE =
             "use brokerdb;";
+
+
     private static final String CREATE_USERS_TABLE =
             "CREATE TABLE if not exists users " +
                     "(id int AUTO_INCREMENT not null PRIMARY KEY, " +
                     "username varchar (30) not null, " +
                     "password varchar (30) not null);";
+
+
     private static final String CREATE_CHANNELS_TABLE =
             "CREATE TABLE if not exists channels " +
                     "(id int AUTO_INCREMENT not null PRIMARY KEY," +
                     "channel varchar (30) not null);";
+
+
     private static final String CREATE_SUBSCRIPTIONS_TABLE =
             "CREATE TABLE if not exists subscriptions " +
                     "(subscriber_id int not null," +
                     "channel_id int not null," +
                     "FOREIGN KEY (subscriber_id) REFERENCES users(id), " +
                     "FOREIGN KEY (channel_id) REFERENCES channels(id) );";
+
+
     private static final String CREATE_MESSAGES_TABLE =
             "CREATE TABLE if not exists messages " +
                     "(id int AUTO_INCREMENT NOT NULL  PRIMARY KEY," +

@@ -8,6 +8,7 @@ import org.java_websocket.server.WebSocketServer;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.InetSocketAddress;
+import java.util.logging.Logger;
 
 
 public class WebsocketServer {
@@ -19,19 +20,18 @@ public class WebsocketServer {
     }
 
 
-
-
-
+    private Logger log;
     private MessageProcessor processor;
     private String host = "localhost";
     private int port = 8090;
-    @Autowired
     private Gson gson;
 
     public WebsocketServer() {
         processor = new MessageProcessor();
         processor.startWorkers();
         TokensStorage.getTokenStorage();
+        this.log  = Logger.getLogger(WebsocketServer.class.getName());
+        gson = new Gson();
     }
 
     public void start() {
@@ -40,24 +40,24 @@ public class WebsocketServer {
             WebSocketServer webSocketServer = new WebSocketServer(new InetSocketAddress(host, port)) {
                 @Override
                 public void onOpen(WebSocket conn, ClientHandshake handshake) {
-
+                    log.info("Соединение установлено с "	+ conn.getRemoteSocketAddress());
                 }
 
                 @Override
                 public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-
+                    log.info("Соединение закрыто");
                 }
 
                 @Override
                 public void onMessage(WebSocket conn, String jsonMessage) {
-                    System.out.println("received message from "	+ conn.getRemoteSocketAddress() + ": " + jsonMessage);
+                    log.info("received message from "	+ conn.getRemoteSocketAddress() + ": " );
                     Message message = gson.fromJson(jsonMessage, Message.class);
                     processor.addMessage(message, conn);
                 }
 
                 @Override
                 public void onError(WebSocket conn, Exception ex) {
-
+                    log.info("Ошибка: " + ex);
                 }
             };
             webSocketServer.run();
