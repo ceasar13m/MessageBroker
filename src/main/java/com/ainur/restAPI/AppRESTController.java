@@ -21,15 +21,17 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 @RestController
-
 public class AppRESTController {
-    @Autowired
     TokenResponse tokenResponse;
-    @Autowired
     MySQLRepository mySQLRepository;
+    DataSource dataSource;
 
     @Autowired
-    DataSource dataSource;
+    public AppRESTController(DataSource dataSource, MySQLRepository mySQLRepository, TokenResponse tokenResponse) {
+        this.mySQLRepository = mySQLRepository;
+        this.dataSource = dataSource;
+        this.tokenResponse = tokenResponse;
+    }
 
 
     Gson gson = new Gson();
@@ -66,8 +68,6 @@ public class AppRESTController {
     ResponseEntity<TokenResponse> signUp(HttpServletRequest request, HttpServletResponse response) {
 
         try (Connection connection = dataSource.getConnection()) {
-
-
             SignUpMessage signUpMessage = gson.fromJson(request.getReader(), SignUpMessage.class);
             if (!mySQLRepository.isUserExists(signUpMessage.getUsername())) {
                 uuid = UUID.randomUUID();

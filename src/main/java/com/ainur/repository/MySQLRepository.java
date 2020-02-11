@@ -1,5 +1,11 @@
 package com.ainur.repository;
 
+import com.ainur.MessageBroker;
+import com.ainur.TokensStorage;
+import com.ainur.WebSocketsStorage;
+import com.ainur.model.messages.Message;
+import com.ainur.model.messages.PublishMessage;
+import org.java_websocket.WebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -11,6 +17,12 @@ import java.util.ArrayList;
 
 @Repository
 public class MySQLRepository {
+
+    @Autowired
+    DataSource dataSource;
+
+
+
     private static final String CREATE_DATABASE =
             "create database IF NOT EXISTS brokerdb;";
 
@@ -50,8 +62,7 @@ public class MySQLRepository {
                     "FOREIGN KEY (sender_id) REFERENCES users(id), " +
                     "FOREIGN KEY (channel_id) REFERENCES channels(id) );";
 
-    @Autowired
-    DataSource dataSource;
+
 
 
     @PostConstruct
@@ -196,6 +207,36 @@ public class MySQLRepository {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+
+
+
+    public void addMessage(PublishMessage publishMessage) {
+
+        try (Connection connection = dataSource.getConnection()){
+            String userId = TokensStorage.getTokenStorage().getUserId(publishMessage.getToken());
+            WebSocket socket = WebSocketsStorage.getWebSocketsStorage().getSocket(userId);
+            String sql = "select * from channels where channel = '" + publishMessage.getChannelName() + "'";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            int channelId;
+            if (resultSet.next()) {
+                channelId = Integer.parseInt(resultSet.getString(1));
+                System.out.println(publishMessage.getDateString());
+                sql = "insert into messages (sender_id, channel_id, sent_time, message) values ('"
+                        + userId + "','"
+                        + channelId + "','"
+                        + publishMessage.getDateString() + "','"
+                        + publishMessage.getMessage() + "');";
+                preparedStatement.executeQuery(sql);
+            } else {
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }

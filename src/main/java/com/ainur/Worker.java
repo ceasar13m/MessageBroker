@@ -19,18 +19,16 @@ public class Worker extends Thread {
 
     private BlockingQueue<Message> messages;
     private Gson gson;
-
-    @Autowired
     MySQLRepository mySQLRepository;
 
     @Autowired
     DataSource dataSource;
 
 
-
     public Worker(BlockingQueue<Message> messages) {
         this.messages = messages;
         gson = new Gson();
+        mySQLRepository = new MySQLRepository();
     }
 
 
@@ -55,6 +53,7 @@ public class Worker extends Thread {
 
                     case MessageType.CREATE_CHANNEL: {
                         createChannel(message);
+                        break;
                     }
                 }
             } catch (InterruptedException e) {
@@ -69,33 +68,8 @@ public class Worker extends Thread {
 
 
     private void publish(Message message) {
-        System.out.println("Publish");
         PublishMessage publishMessage = gson.fromJson(message.getData(), PublishMessage.class);
-        MessageBroker broker = new MessageBroker(publishMessage);
-        String userId = TokensStorage.getTokenStorage().getUserId(publishMessage.getToken());
-        try (Connection connection = dataSource.getConnection()){
-            WebSocket socket = WebSocketsStorage.getWebSocketsStorage().getSocket(userId);
-            String sql = "select * from channels where channel = '" + publishMessage.getChannelName() + "'";
-
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            int channelId;
-            if (resultSet.next()) {
-                channelId = Integer.parseInt(resultSet.getString(1));
-                System.out.println(publishMessage.getDateString());
-                sql = "insert into messages (sender_id, channel_id, sent_time, message) values ('"
-                        + userId + "','"
-                        + channelId + "','"
-                        + publishMessage.getDateString() + "','"
-                        + publishMessage.getMessage() + "');";
-                preparedStatement.executeQuery(sql);
-//                new ResponseManager(HttpStatus.OK, socket);
-            } else {
-//                new ResponseManager(HttpStatus.FORBIDDEN, socket);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        mySQLRepository.addMessage(publishMessage);
     }
 
     private void subscribe(Message message) {
