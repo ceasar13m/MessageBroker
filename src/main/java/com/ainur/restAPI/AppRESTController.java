@@ -7,6 +7,8 @@ import com.ainur.model.responses.TokenResponse;
 import com.ainur.repository.MySQLRepository;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,20 +24,24 @@ import java.util.UUID;
 
 @RestController
 public class AppRESTController {
-    TokenResponse tokenResponse;
-    MySQLRepository mySQLRepository;
-    DataSource dataSource;
 
-    @Autowired
+    ApplicationContext context;
+    private TokenResponse tokenResponse;
+    private MySQLRepository mySQLRepository;
+    private DataSource dataSource;
+    private Gson gson;
+    private UUID uuid;
+
     public AppRESTController(DataSource dataSource, MySQLRepository mySQLRepository, TokenResponse tokenResponse) {
         this.mySQLRepository = mySQLRepository;
         this.dataSource = dataSource;
         this.tokenResponse = tokenResponse;
+        gson = new Gson();
     }
 
 
-    Gson gson = new Gson();
-    UUID uuid;
+
+
 
     @RequestMapping("/signIn")
     @PostMapping(produces = "application/json")

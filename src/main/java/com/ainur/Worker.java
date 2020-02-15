@@ -10,6 +10,8 @@ import com.ainur.util.MessageType;
 import com.google.gson.Gson;
 import org.java_websocket.WebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -28,7 +30,6 @@ public class Worker extends Thread {
     public Worker(BlockingQueue<Message> messages) {
         this.messages = messages;
         gson = new Gson();
-        mySQLRepository = new MySQLRepository();
     }
 
 
