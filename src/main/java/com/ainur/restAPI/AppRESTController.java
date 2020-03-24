@@ -27,15 +27,18 @@ public class AppRESTController {
 
     ApplicationContext context;
     private TokenResponse tokenResponse;
+
+    @Autowired
     private MySQLRepository mySQLRepository;
+
+
     private DataSource dataSource;
     private Gson gson;
     private UUID uuid;
 
-    public AppRESTController(DataSource dataSource, MySQLRepository mySQLRepository, TokenResponse tokenResponse) {
-        this.mySQLRepository = mySQLRepository;
-        this.dataSource = dataSource;
-        this.tokenResponse = tokenResponse;
+    public AppRESTController() {
+        context = new AnnotationConfigApplicationContext("com.ainur");
+        this.dataSource = context.getBean(DataSource.class);
         gson = new Gson();
     }
 

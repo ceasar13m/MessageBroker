@@ -3,8 +3,10 @@ package com.ainur.repository;
 import com.ainur.MessageBroker;
 import com.ainur.TokensStorage;
 import com.ainur.WebSocketsStorage;
+import com.ainur.model.messages.CreateChannelMessage;
 import com.ainur.model.messages.Message;
 import com.ainur.model.messages.PublishMessage;
+import com.ainur.model.messages.SubscribeMessage;
 import org.java_websocket.WebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +21,6 @@ import java.util.ArrayList;
 @Repository
 public class MySQLRepository {
 
-    @Autowired
     DataSource dataSource;
 
 
@@ -237,6 +238,56 @@ public class MySQLRepository {
 
             }
         } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+
+    public void subscribe(SubscribeMessage subscribeMessage) {
+        String userId = TokensStorage.getTokenStorage().getUserId(subscribeMessage.getToken());
+        try (Connection connection = dataSource.getConnection()){
+            WebSocket socket = WebSocketsStorage.getWebSocketsStorage().getSocket(userId);
+            String sql= "select * from channels where channel = '" + subscribeMessage.getChannelName() + "'";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            int channelId;
+            if (resultSet.next()) {
+                channelId = Integer.parseInt(resultSet.getString(1));
+                sql = "insert into subscriptions (subscriber_id, channel_id) values ('"
+                        + TokensStorage.getTokenStorage().getUserId(subscribeMessage.getToken())
+                        + "','" + channelId + "');";
+                preparedStatement.executeQuery(sql);
+            } else {
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+    public void createChannel(CreateChannelMessage createChannelMessage) {
+        String userId = TokensStorage.getTokenStorage().getUserId(createChannelMessage.getToken());
+        try (Connection connection = dataSource.getConnection()){
+            WebSocket socket = WebSocketsStorage.getWebSocketsStorage().getSocket(userId);
+            String sql= "insert into channels (channel) values ('" + createChannelMessage.getChannelName() + "');";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.executeUpdate();
+
+            sql = "select * from channels where channel = '" + createChannelMessage.getChannelName() + "'";
+            preparedStatement = connection.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+
+            } else {
+
+            }
+        }  catch (SQLException e) {
             e.printStackTrace();
         }
     }
