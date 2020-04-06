@@ -1,4 +1,4 @@
-package com.ainur.restAPI;
+package com.ainur.configs;
 
 
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;

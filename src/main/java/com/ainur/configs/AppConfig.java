@@ -1,11 +1,12 @@
-package com.ainur.restAPI;
+package com.ainur.configs;
 
-import com.ainur.repository.MySQLRepository;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.sql.DataSource;
@@ -14,16 +15,29 @@ import javax.sql.DataSource;
 @EnableWebMvc
 @Configuration
 @ComponentScan(basePackages = "com.ainur")
+@PropertySource("classpath:db.properties")
 public class AppConfig {
+    @Value("${broker.db.url}")
+    String url;
+
+    @Value("${broker.db.username}")
+    String username;
+
+    @Value("${broker.db.password}")
+    String password;
+
+    @Value("${broker.db.driver-class-name}")
+    String driverClassName;
+
 
     @Bean
     public DataSource dataSource(){
         HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        hikariConfig.setJdbcUrl("jdbc:mysql://mysql-instance.cx7rk1ngtop4.us-east-1.rds.amazonaws.com:3306/brokerdb?verifyServerCertificate=false&useSSL=false&requireSSL=false&useLegacyDatetimeCode=false&amp&serverTimezone=UTC");
-        hikariConfig.setUsername("ainur");
-        hikariConfig.setPassword("kazan13m");
 
+        hikariConfig.setDriverClassName(driverClassName);
+        hikariConfig.setJdbcUrl(url);
+        hikariConfig.setUsername(username);
+        hikariConfig.setPassword(password);
         hikariConfig.setMaximumPoolSize(5);
         hikariConfig.setConnectionTestQuery("SELECT 1");
         hikariConfig.setPoolName("springHikariCP");

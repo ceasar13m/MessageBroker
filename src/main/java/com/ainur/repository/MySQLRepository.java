@@ -7,6 +7,8 @@ import com.ainur.model.messages.CreateChannelMessage;
 import com.ainur.model.messages.Message;
 import com.ainur.model.messages.PublishMessage;
 import com.ainur.model.messages.SubscribeMessage;
+import com.ainur.model.messages.User;
+import com.ainur.model.responses.Token;
 import org.java_websocket.WebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,13 +18,14 @@ import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.UUID;
 
 
 @Repository
 public class MySQLRepository {
 
+    @Autowired
     DataSource dataSource;
-
 
 
     private static final String CREATE_DATABASE =
@@ -65,6 +68,8 @@ public class MySQLRepository {
                     "FOREIGN KEY (channel_id) REFERENCES channels(id) );";
 
 
+    private static final String ADD_USER = "insert into users " +
+            "(username, password) values (?,?);";
 
 
     @PostConstruct
@@ -80,6 +85,32 @@ public class MySQLRepository {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public Token signIn(User user) {
+        UUID uuid = UUID.randomUUID();
+        Token token = new Token();
+        if (isLoginPasswordValid(user)) {
+            TokensStorage.getTokenStorage().addToken(uuid.toString(), getUserId(user.getUsername()));
+            token.setToken(uuid.toString());
+        }
+        return token;
+    }
+
+    public boolean signUp(User user) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (!isUserExists(user.getUsername())) {
+                PreparedStatement preparedStatement = connection.prepareStatement(ADD_USER);
+                preparedStatement.setString(1, user.getUsername());
+                preparedStatement.setString(2, user.getPassword());
+                preparedStatement.executeUpdate();
+                return true;
+            } else
+                return false;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
@@ -119,27 +150,27 @@ public class MySQLRepository {
             e.printStackTrace();
             return false;
         }
-
-
     }
 
-    public boolean isLoginPasswordValid(String username, String password) {
+    public boolean isLoginPasswordValid(User user) {
         try (Connection connection = dataSource.getConnection()) {
-            String sql = "select * from users where username = '" + username + "'";
+            String sql = "select * from users where username = '" + user.getUsername() + "'";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                if (resultSet.getString(2).equals(username) && resultSet.getString(3).equals(password))
-                    return true;
-                else
-                    return false;
+                if (resultSet.getString(2).equals(user.getUsername()) && resultSet.getString(3).equals(user.getPassword()))
+                    if (resultSet.getString(2).equals(user.getUsername()) &&
+                            resultSet.getString(3).equals(user.getPassword()))
+                        return true;
+                    else
+                        return false;
             } else
                 return false;
+            return false;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
-
     }
 
 
@@ -213,11 +244,10 @@ public class MySQLRepository {
     }
 
 
-
-
     public void addMessage(PublishMessage publishMessage) {
 
-        try (Connection connection = dataSource.getConnection()){
+
+        try (Connection connection = dataSource.getConnection()) {
             String userId = TokensStorage.getTokenStorage().getUserId(publishMessage.getToken());
             WebSocket socket = WebSocketsStorage.getWebSocketsStorage().getSocket(userId);
             String sql = "select * from channels where channel = '" + publishMessage.getChannelName() + "'";
@@ -243,14 +273,11 @@ public class MySQLRepository {
     }
 
 
-
-
-
     public void subscribe(SubscribeMessage subscribeMessage) {
         String userId = TokensStorage.getTokenStorage().getUserId(subscribeMessage.getToken());
-        try (Connection connection = dataSource.getConnection()){
+        try (Connection connection = dataSource.getConnection()) {
             WebSocket socket = WebSocketsStorage.getWebSocketsStorage().getSocket(userId);
-            String sql= "select * from channels where channel = '" + subscribeMessage.getChannelName() + "'";
+            String sql = "select * from channels where channel = '" + subscribeMessage.getChannelName() + "'";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             ResultSet resultSet = preparedStatement.executeQuery();
             int channelId;
@@ -269,13 +296,11 @@ public class MySQLRepository {
     }
 
 
-
-
     public void createChannel(CreateChannelMessage createChannelMessage) {
         String userId = TokensStorage.getTokenStorage().getUserId(createChannelMessage.getToken());
-        try (Connection connection = dataSource.getConnection()){
+        try (Connection connection = dataSource.getConnection()) {
             WebSocket socket = WebSocketsStorage.getWebSocketsStorage().getSocket(userId);
-            String sql= "insert into channels (channel) values ('" + createChannelMessage.getChannelName() + "');";
+            String sql = "insert into channels (channel) values ('" + createChannelMessage.getChannelName() + "');";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
 
@@ -287,8 +312,9 @@ public class MySQLRepository {
             } else {
 
             }
-        }  catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 }
+

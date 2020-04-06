@@ -1,9 +1,8 @@
 package com.ainur.model.responses;
 
-import org.springframework.stereotype.Component;
 
-@Component
-public class TokenResponse {
+
+public class Token {
     private String token;
 
     public void setToken(String token) {

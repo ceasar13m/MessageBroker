@@ -21,7 +21,6 @@ import java.util.logging.Logger;
 public class MessageProcessor {
 
     private BlockingQueue<Message> messages;
-    private BlockingQueue<AuthMessage> authMessages;
     private ArrayList<Worker> workers = new ArrayList<>();
     private Gson gson;
     private Logger log;
@@ -32,7 +31,6 @@ public class MessageProcessor {
         TokensStorage.getTokenStorage();
         gson = new Gson();
         messages = new ArrayBlockingQueue<>(1024);
-        authMessages = new ArrayBlockingQueue<>(1024);
         this.log = Logger.getLogger(MessageProcessor.class.getName());
         log.info("Конструктор процессора");
     }
