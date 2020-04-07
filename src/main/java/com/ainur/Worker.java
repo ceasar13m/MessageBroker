@@ -7,26 +7,22 @@ import com.ainur.model.messages.SubscribeMessage;
 import com.ainur.repository.MySQLRepository;
 import com.ainur.util.MessageType;
 import com.google.gson.Gson;
-import org.java_websocket.WebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import javax.sql.DataSource;
-import java.sql.*;
 import java.util.concurrent.BlockingQueue;
 
 
 public class Worker extends Thread {
 
     private BlockingQueue<Message> messages;
+    @Autowired
     private Gson gson;
+    @Autowired
     MySQLRepository mySQLRepository;
 
 
     public Worker(BlockingQueue<Message> messages) {
         this.messages = messages;
-        gson = new Gson();
-        mySQLRepository = new MySQLRepository();
     }
 
 

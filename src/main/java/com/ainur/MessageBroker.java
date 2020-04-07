@@ -37,6 +37,5 @@ public class MessageBroker {
         for (String id : subscribersId) {
             WebSocketsStorage.getWebSocketsStorage().getSocket(id).send(jsonString);
         }
-
     }
 }

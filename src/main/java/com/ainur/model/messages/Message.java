@@ -2,9 +2,17 @@ package com.ainur.model.messages;
 
 
 public class Message {
+    private String token;
     private int command;
     private String data;
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 
     public int getCommand() {
         return command;

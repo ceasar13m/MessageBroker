@@ -6,41 +6,32 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.net.InetSocketAddress;
 import java.util.logging.Logger;
 
 
 
-@Component
 public class WebsocketServer {
-
-
-    public static void main(String[] args) {
-        WebsocketServer server = new WebsocketServer();
-        server.start();
-    }
-
-
     private Logger log;
     private MessageProcessor processor;
-    private String host = "localhost";
-    private int port = 8090;
+    @Autowired
     private Gson gson;
+
+    private final String HOST = "localhost";
+    private final int PORT = 8090;
+
 
     public WebsocketServer() {
         processor = new MessageProcessor();
         processor.startWorkers();
         TokensStorage.getTokenStorage();
         this.log  = Logger.getLogger(WebsocketServer.class.getName());
-        gson = new Gson();
     }
 
     public void start() {
+        log.info("Сокет сервер запущен");
         try {
-
-            WebSocketServer webSocketServer = new WebSocketServer(new InetSocketAddress(host, port)) {
+            WebSocketServer webSocketServer = new WebSocketServer(new InetSocketAddress(HOST, PORT)) {
                 @Override
                 public void onOpen(WebSocket conn, ClientHandshake handshake) {
                     log.info("Соединение установлено с "	+ conn.getRemoteSocketAddress());
