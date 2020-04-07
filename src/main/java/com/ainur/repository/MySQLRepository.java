@@ -296,8 +296,9 @@ public class MySQLRepository {
     }
 
 
-    public void createChannel(CreateChannelMessage createChannelMessage) {
-        String userId = TokensStorage.getTokenStorage().getUserId(createChannelMessage.getToken());
+    public void createChannel(CreateChannelMessage createChannelMessage, Token token) {
+        System.out.println("REPOSITORY CNCH");
+        String userId = TokensStorage.getTokenStorage().getUserId(token.getToken());
         try (Connection connection = dataSource.getConnection()) {
             WebSocket socket = WebSocketsStorage.getWebSocketsStorage().getSocket(userId);
             String sql = "insert into channels (channel) values ('" + createChannelMessage.getChannelName() + "');";

@@ -11,21 +11,21 @@ import java.util.logging.Logger;
 
 
 
-public class WebsocketServer {
+public class WSServer {
     private Logger log;
     private MessageProcessor processor;
-    @Autowired
     private Gson gson;
 
     private final String HOST = "localhost";
     private final int PORT = 8090;
 
 
-    public WebsocketServer() {
+    public WSServer() {
         processor = new MessageProcessor();
         processor.startWorkers();
         TokensStorage.getTokenStorage();
-        this.log  = Logger.getLogger(WebsocketServer.class.getName());
+        this.log  = Logger.getLogger(WSServer.class.getName());
+        gson = new Gson();
     }
 
     public void start() {
@@ -44,8 +44,9 @@ public class WebsocketServer {
 
                 @Override
                 public void onMessage(WebSocket conn, String jsonMessage) {
-                    log.info("received message from "	+ conn.getRemoteSocketAddress() + ": " );
                     Message message = gson.fromJson(jsonMessage, Message.class);
+                    log.info("received message from "	+
+                            conn.getRemoteSocketAddress() + ": " + message.getData().toString());
                     processor.addMessage(message, conn);
                 }
 

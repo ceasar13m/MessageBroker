@@ -1,7 +1,5 @@
 package com.ainur.configs;
 
-import com.ainur.MessageProcessor;
-import com.ainur.WebsocketServer;
 import com.google.gson.Gson;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -54,13 +52,5 @@ public class AppConfig {
 
         return dataSource;
     }
-
-    @Bean
-    public Gson gson() {
-        return new Gson();
-    }
-
-
-
 }
 

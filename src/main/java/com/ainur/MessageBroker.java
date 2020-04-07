@@ -4,18 +4,19 @@ import com.ainur.model.messages.MessagePocket;
 import com.ainur.model.messages.PublishMessage;
 import com.ainur.repository.MySQLRepository;
 import com.google.gson.Gson;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class MessageBroker {
     PublishMessage message;
+    @Autowired
     MySQLRepository mySQLRepository;
     Gson gson;
 
     public MessageBroker(PublishMessage message) {
         this.message = message;
-        mySQLRepository = new MySQLRepository();
         gson = new Gson();
     }
 

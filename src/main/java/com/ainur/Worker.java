@@ -4,6 +4,7 @@ import com.ainur.model.messages.CreateChannelMessage;
 import com.ainur.model.messages.Message;
 import com.ainur.model.messages.PublishMessage;
 import com.ainur.model.messages.SubscribeMessage;
+import com.ainur.model.responses.Token;
 import com.ainur.repository.MySQLRepository;
 import com.ainur.util.MessageType;
 import com.google.gson.Gson;
@@ -15,7 +16,6 @@ import java.util.concurrent.BlockingQueue;
 public class Worker extends Thread {
 
     private BlockingQueue<Message> messages;
-    @Autowired
     private Gson gson;
     @Autowired
     MySQLRepository mySQLRepository;
@@ -23,6 +23,7 @@ public class Worker extends Thread {
 
     public Worker(BlockingQueue<Message> messages) {
         this.messages = messages;
+        gson = new Gson();
     }
 
 
@@ -73,6 +74,8 @@ public class Worker extends Thread {
 
     private void createChannel(Message message) {
         CreateChannelMessage createChannelMessage = gson.fromJson(message.getData(), CreateChannelMessage.class);
-        mySQLRepository.createChannel(createChannelMessage);
+        Token token = new Token();
+        token.setToken(message.getToken());
+        mySQLRepository.createChannel(createChannelMessage, token);
     }
 }
