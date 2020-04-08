@@ -8,21 +8,16 @@ import com.ainur.model.responses.Token;
 import com.ainur.repository.MySQLRepository;
 import com.ainur.util.MessageType;
 import com.google.gson.Gson;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.concurrent.BlockingQueue;
 
 
 public class Worker extends Thread {
 
-    private BlockingQueue<Message> messages;
     private Gson gson;
-    @Autowired
-    MySQLRepository mySQLRepository;
+    private MySQLRepository mySQLRepository;
 
 
-    public Worker(BlockingQueue<Message> messages) {
-        this.messages = messages;
+    public Worker(MySQLRepository mySQLRepository) {
+        this.mySQLRepository = mySQLRepository;
         gson = new Gson();
     }
 
@@ -34,7 +29,7 @@ public class Worker extends Thread {
     public void run() {
         while (true) {
             try {
-                Message message = messages.take();
+                Message message = MessagesStorage.getMessagesStorage().takeMessage();
                 switch (message.getCommand()) {
                     case MessageType.PUBLISH: {
                         publish(message);

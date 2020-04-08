@@ -1,8 +1,11 @@
 package com.ainur.configs;
 
+import com.ainur.Worker;
 import com.google.gson.Gson;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -29,6 +32,8 @@ public class AppConfig {
 
     @Value("${broker.db.driver-class-name}")
     String driverClassName;
+    @Autowired
+    private BeanFactory beanFactory;
 
 
     @Bean
@@ -52,5 +57,7 @@ public class AppConfig {
 
         return dataSource;
     }
+
+
 }
 

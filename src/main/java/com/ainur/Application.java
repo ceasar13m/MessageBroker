@@ -1,16 +1,15 @@
-
 package com.ainur;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+
 @SpringBootApplication
 public class Application {
-
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
-
-        WSServer server = new WSServer();
-        server.start();
+        WSServer wsServer = new WSServer();
+        wsServer.start();
     }
+
 }

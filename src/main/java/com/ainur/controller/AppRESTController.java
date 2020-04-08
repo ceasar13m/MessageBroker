@@ -1,5 +1,6 @@
 package com.ainur.controller;
 
+import com.ainur.WSServer;
 import com.ainur.model.messages.User;
 import com.ainur.model.responses.Token;
 import com.ainur.repository.MySQLRepository;
@@ -7,6 +8,7 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
@@ -26,8 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AppRESTController {
     @Autowired
     private MySQLRepository mySQLRepository;
-    @Autowired
-    Gson gson;
+    private Gson gson;
+    private Logger log;
 
     @RequestMapping("/sign-in")
     @GetMapping(
@@ -35,7 +37,9 @@ public class AppRESTController {
     )
     @ResponseBody
     public ResponseEntity<Token> signIn(HttpServletRequest request, HttpServletResponse response) {
-
+        gson = new Gson();
+        log  = Logger.getLogger(AppRESTController.class.getName());
+        log.info("sign in");
         try {
             User user = gson.fromJson(request.getReader(), User.class);
             Token token = this.mySQLRepository.signIn(user);
@@ -50,6 +54,8 @@ public class AppRESTController {
     @PostMapping(produces = {"application/json"})
     @ResponseBody
     public ResponseEntity signUp(HttpServletRequest request) {
+        gson = new Gson();
+        log  = Logger.getLogger(AppRESTController.class.getName());
         try {
             User user = gson.fromJson(request.getReader(), User.class);
             return this.mySQLRepository.signUp(user) ? new ResponseEntity(HttpStatus.OK) : new ResponseEntity(HttpStatus.UNAUTHORIZED);

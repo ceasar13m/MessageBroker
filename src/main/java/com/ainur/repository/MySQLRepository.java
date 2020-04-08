@@ -2,6 +2,7 @@ package com.ainur.repository;
 
 import com.ainur.MessageBroker;
 import com.ainur.TokensStorage;
+import com.ainur.WSServer;
 import com.ainur.WebSocketsStorage;
 import com.ainur.model.messages.CreateChannelMessage;
 import com.ainur.model.messages.Message;
@@ -82,6 +83,7 @@ public class MySQLRepository {
             statement.executeUpdate(CREATE_CHANNELS_TABLE);
             statement.executeUpdate(CREATE_SUBSCRIPTIONS_TABLE);
             statement.executeUpdate(CREATE_MESSAGES_TABLE);
+
 
         } catch (SQLException e) {
             e.printStackTrace();
